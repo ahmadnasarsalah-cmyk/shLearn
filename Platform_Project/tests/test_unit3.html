@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تحدي المقادير الجبرية | منصة الأستاذة شهد</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-gradient-start:#e0f2fe; --bg-gradient-end:#bae6fd;
+  --card-bg:rgba(255,255,255,0.95);
+  --text-main:#0c4a6e; --text-muted:#475569;
+  --primary:#0284c7; --primary-hover:#0369a1;
+  --border-color:#cbd5e1;
+  --easy:#0ea5e9; --easy-hover:#0284c7;
+  --medium:#3b82f6; --medium-hover:#2563eb;
+  --hard:#6366f1; --hard-hover:#4f46e5;
+  --correct-bg:#d1fae5; --correct-border:#10b981; --correct-text:#047857;
+  --wrong-bg:#fee2e2; --wrong-border:#ef4444; --wrong-text:#b91c1c;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Tajawal',sans-serif;}
+body{
+  background:linear-gradient(135deg,var(--bg-gradient-start) 0%,var(--bg-gradient-end) 100%);
+  color:var(--text-main);min-height:100vh;display:flex;justify-content:center;
+  align-items:center;padding:20px;overflow-x:hidden;
+}
+.container{width:100%;max-width:820px;}
+.card{
+  background-color:var(--card-bg);border-radius:24px;padding:40px;
+  box-shadow:0 20px 40px -15px rgba(2,132,199,.2);
+  border:1px solid rgba(255,255,255,.5);backdrop-filter:blur(10px);
+  position:relative;overflow:hidden;
+}
+.screen{display:none;flex-direction:column;align-items:center;text-align:center;animation:fadeIn .5s ease;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+
+.card-top-bar{position:absolute;top:15px;left:15px;display:flex;gap:8px;z-index:5;}
+.icon-btn{
+  width:40px;height:40px;border-radius:50%;border:2px solid var(--border-color);
+  background:#fff;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;
+  justify-content:center;transition:.2s;
+}
+.icon-btn:hover{border-color:var(--primary);transform:scale(1.08);}
+
+.title{font-size:2.2rem;font-weight:900;color:var(--primary);margin-bottom:10px;}
+.subtitle{font-size:1.2rem;color:var(--text-muted);margin-bottom:30px;}
+
+.credit-badge{
+  margin-top:35px;padding:12px 25px;background:#f0f9ff;border:2px dashed var(--primary);
+  color:var(--primary-hover);border-radius:50px;font-size:1.2rem;font-weight:900;
+  display:flex;align-items:center;gap:10px;box-shadow:0 4px 10px rgba(2,132,199,.1);
+  transition:.3s;
+}
+
+.level-buttons{display:flex;flex-direction:column;gap:15px;width:100%;max-width:460px;}
+.btn-level{
+  padding:16px 24px;border:none;border-radius:16px;font-size:1.25rem;font-weight:700;
+  color:#fff;cursor:pointer;transition:.3s;box-shadow:0 4px 15px rgba(0,0,0,.1);
+  display:flex;align-items:center;justify-content:center;gap:10px;position:relative;
+}
+.btn-easy{background:var(--easy);} .btn-easy:hover{background:var(--easy-hover);transform:translateY(-3px);}
+.btn-medium{background:var(--medium);} .btn-medium:hover{background:var(--medium-hover);transform:translateY(-3px);}
+.btn-hard{background:var(--hard);} .btn-hard:hover{background:var(--hard-hover);transform:translateY(-3px);}
+.record-tag{
+  position:absolute;top:-8px;left:12px;background:#fbbf24;color:#78350f;font-size:.72rem;
+  font-weight:900;padding:3px 10px;border-radius:50px;box-shadow:0 2px 6px rgba(0,0,0,.15);
+}
+
+.game-header{
+  width:100%;display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:15px;padding-bottom:12px;border-bottom:2px dashed var(--border-color);
+  gap:10px;flex-wrap:wrap;
+}
+.level-badge{color:#fff;padding:8px 18px;border-radius:20px;font-weight:700;font-size:1.05rem;box-shadow:0 4px 10px rgba(0,0,0,.1);}
+.score-box{
+  font-size:1.05rem;font-weight:700;color:var(--primary);background:#f0f9ff;
+  padding:8px 15px;border-radius:12px;border:1px solid #e0f2fe;display:flex;gap:12px;align-items:center;
+}
+.score-box .time-chip{color:#7c3aed;}
+
+.progress-track{width:100%;height:10px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin-bottom:22px;}
+.progress-fill{
+  height:100%;width:0%;border-radius:20px;
+  background:linear-gradient(90deg,#22c55e,#0284c7,#6366f1);
+  transition:width .45s cubic-bezier(.22,1,.36,1);
+}
+
+.math-text,bdi{
+  font-family:Arial,sans-serif;font-size:1.1em;color:var(--primary-hover);font-weight:bold;
+  direction:ltr;unicode-bidi:isolate;display:inline-block;margin:0 3px;
+}
+.question-text{
+  font-size:1.5rem;font-weight:700;line-height:1.6;margin-bottom:28px;
+  color:var(--text-main);width:100%;text-align:right;
+}
+.options-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;width:100%;}
+.option-btn{
+  background:#fff;border:2px solid var(--border-color);color:var(--text-main);
+  padding:16px;border-radius:16px;font-size:1.05rem;font-weight:700;cursor:pointer;
+  transition:.2s;text-align:right;display:flex;align-items:center;
+  box-shadow:0 4px 6px rgba(0,0,0,.02);gap:8px;
+}
+.option-btn .key-hint{
+  background:#e0f2fe;color:var(--primary-hover);border-radius:6px;font-size:.8rem;
+  padding:2px 8px;font-weight:900;flex-shrink:0;
+}
+.option-btn:hover:not(:disabled){background:#f0f9ff;border-color:var(--primary);transform:translateY(-2px);}
+.option-btn.correct{background:var(--correct-bg);border-color:var(--correct-border);color:var(--correct-text);}
+.option-btn.wrong{background:var(--wrong-bg);border-color:var(--wrong-border);color:var(--wrong-text);}
+.option-btn:disabled{cursor:not-allowed;opacity:.85;}
+
+.btn-outline{
+  margin-top:25px;padding:12px 24px;background:transparent;border:2px solid var(--primary);
+  color:var(--primary);border-radius:12px;font-weight:700;cursor:pointer;transition:.3s;
+  text-decoration: none; display: inline-block;
+}
+.btn-outline:hover{background:var(--primary);color:#fff;}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:25px;}
+
+.result-icon{font-size:5rem;margin-bottom:15px;}
+.stars-row{font-size:2.4rem;letter-spacing:8px;margin:10px 0 5px;color:#fbbf24;}
+.record-banner{
+  background:#fef3c7;color:#92400e;font-weight:900;padding:8px 18px;border-radius:50px;
+  margin:10px 0;display:inline-block;
+}
+
+.review-list{width:100%;max-height:52vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:4px;}
+.review-item{
+  background:#f8fafc;border-right:5px solid #ef4444;border-radius:12px;
+  padding:14px 16px;text-align:right;
+}
+.review-item .r-q{font-weight:700;margin-bottom:8px;line-height:1.6;}
+.review-item .r-ans{margin:4px 0;font-size:.95rem;}
+.review-item .r-wrong{color:var(--wrong-text);font-weight:700;}
+.review-item .r-right{color:var(--correct-text);font-weight:700;}
+
+@media (max-width:600px){
+  .options-grid{grid-template-columns:1fr;}
+  .card{padding:22px;}
+  .question-text{font-size:1.15rem;}
+  .game-header{flex-direction:column;align-items:stretch;}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card">
+
+    <div class="card-top-bar">
+      <button class="icon-btn" id="sound-btn" onclick="toggleSound()" title="كتم/تشغيل الصوت">🔊</button>
+    </div>
+
+    <!-- ===== شاشة البداية ===== -->
+    <div class="screen active" id="start-screen">
+      <div style="font-size:4rem;margin-bottom:15px;">📘</div>
+      <h1 class="title">بنك أسئلة الرياضيات (الوحدة 3)</h1>
+      <p class="subtitle">يحتوي كل مستوى على 35 سؤالاً شاملاً لجميع الدروس</p>
+
+      <div class="level-buttons">
+        <button class="btn-level btn-easy" onclick="startGame('easy')" id="btn-easy">
+          <span>🟢</span> المستوى الأول (أسئلة سهلة)
+        </button>
+        <button class="btn-level btn-medium" onclick="startGame('medium')" id="btn-medium">
+          <span>🟡</span> المستوى الثاني (أسئلة متوسطة)
+        </button>
+        <button class="btn-level btn-hard" onclick="startGame('hard')" id="btn-hard">
+          <span>🔴</span> المستوى الثالث (أسئلة صعبة)
+        </button>
+      </div>
+
+      <a href="../index.html" class="btn-outline" style="margin-top: 20px;">🔙 العودة للمنصة الرئيسية</a>
+
+      <div class="credit-badge">
+        <span>👩‍🏫</span> إعداد الأستاذة / شهد البرطي
+      </div>
+    </div>
+
+    <!-- ===== شاشة اللعب ===== -->
+    <div class="screen" id="game-screen">
+      <div class="game-header">
+        <div class="level-badge" id="current-level-badge">المستوى</div>
+        <div class="score-box">
+          <span>السؤال: <span id="q-counter">1/35</span></span>
+          <span>|</span>
+          <span>النقاط: <span id="score">0</span></span>
+          <span class="time-chip">⏱ <span id="timer">00:00</span></span>
+        </div>
+      </div>
+
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+      <div class="question-text" id="question-text">جاري التحميل...</div>
+      <div class="options-grid" id="options-grid"></div>
+
+      <button class="btn-outline" onclick="returnToMenu()">🏠 إنهاء الاختبار والعودة لقائمة المستويات</button>
+    </div>
+
+    <!-- ===== شاشة النتيجة ===== -->
+    <div class="screen" id="result-screen">
+      <div class="result-icon" id="result-icon">🏆</div>
+      <div class="stars-row" id="stars-row">⭐⭐⭐</div>
+      <h1 class="title" id="result-title">انتهى الاختبار!</h1>
+      <p class="subtitle" id="result-message" style="font-size:1.3rem;">لقد أكملت المستوى بنجاح.</p>
+      <div class="score-box" style="font-size:1.5rem;margin:18px 0;border:none;background:#e0f2fe;flex-direction:column;gap:4px;">
+        <div>النتيجة: <span id="final-score">0</span> / 35</div>
+        <div style="font-size:1rem;color:#7c3aed;">⏱ الزمن: <span id="final-time">00:00</span></div>
+      </div>
+      <div id="record-container"></div>
+
+      <div class="btn-row">
+        <button class="btn-level btn-easy" style="padding:12px 26px;" onclick="restartSameLevel()">🔄 أعد نفس المستوى</button>
+        <button class="btn-outline" onclick="showReview()" id="review-btn">📋 مراجعة الأخطاء</button>
+        <button class="btn-outline" onclick="returnToMenu()">🏠 قائمة المستويات</button>
+      </div>
+    </div>
+
+    <!-- ===== شاشة المراجعة ===== -->
+    <div class="screen" id="review-screen">
+      <h1 class="title">📋 مراجعة الأخطاء</h1>
+      <p class="subtitle" style="margin-bottom:15px;">راجع الأسئلة التي أخطأت فيها لتتعلم منها</p>
+      <div class="review-list" id="review-list"></div>
+      <div class="btn-row">
+        <button class="btn-outline" onclick="showScreen('result-screen')">↩ رجوع للنتيجة</button>
+        <button class="btn-outline" onclick="returnToMenu()">🏠 قائمة المستويات</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* دوال التنقل الأساسية المبسطة بدون حظر الرجوع */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function returnToMenu(){
+  stopTimer();
+  showScreen('start-screen');
+  renderBestRecords();
+}
+
+/* الصوت */
+let audioCtx = null;
+let soundMuted = false;
+function getAudioCtx(){
+  if(!audioCtx){
+    try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+    catch(e){ return null; }
+  }
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function toggleSound(){
+  soundMuted = !soundMuted;
+  document.getElementById('sound-btn').textContent = soundMuted ? '🔇' : '🔊';
+}
+function playSound(isCorrect){
+  if(soundMuted) return;
+  const ctx = getAudioCtx(); if(!ctx) return;
+  try{
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    if(isCorrect){
+      osc.type='sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1046.5, ctx.currentTime+.1);
+      gain.gain.setValueAtTime(.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.01, ctx.currentTime+.3);
+      osc.start(); osc.stop(ctx.currentTime+.3);
+    } else {
+      osc.type='sawtooth';
+      osc.frequency.setValueAtTime(150, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime+.2);
+      gain.gain.setValueAtTime(.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.01, ctx.currentTime+.3);
+      osc.start(); osc.stop(ctx.currentTime+.3);
+    }
+  }catch(e){}
+}
+
+/* ============================================================
+   بيانات الاختبار
+============================================================ */
+const quizData = {
+  easy: {
+    title:"المستوى الأول: الأسئلة السهلة",
+    color:"var(--easy)",
+    questions:[
+      { q:"معامل الحد الجبري <bdi>٥ س² ص</bdi> هو:", options:["<bdi>٥</bdi>","<bdi>٢</bdi>","<bdi>س</bdi>","<bdi>ص</bdi>"], answer:0 },
+      { q:"درجة الحد الجبري <bdi>٤ س² ص³</bdi> هي:", options:["الثانية","الثالثة","الخامسة","السادسة"], answer:2 },
+      { q:"أي من الحدود الآتية يعتبر حداً مشابهاً للحد <bdi>٣ س ص</bdi>؟", options:["<bdi>٣ س² ص</bdi>","<bdi>-٥ س ص</bdi>","<bdi>٣ س ص²</bdi>","<bdi>٤ س</bdi>"], answer:1 },
+      { q:"ناتج جمع الحدين المتشابهين: <bdi>٤ س + ٣ س</bdi> يساوي:", options:["<bdi>٧ س²</bdi>","<bdi>٧ س</bdi>","<bdi>١٢ س</bdi>","<bdi>س</bdi>"], answer:1 },
+      { q:"عدد حدود المقدار الجبري: <bdi>٢ س² - ٥ س + ٣</bdi> هو:", options:["حد واحد","حدان","٣ حدود","٤ حدود"], answer:2 },
+      { q:"الخاصية المستخدمة عند ضرب حد جبري في مقدار جبري هي خاصية:", options:["الإبدال","التجميع","التوزيع","المحايد"], answer:2 },
+      { q:"ناتج ضرب: <bdi>٢ س × (٣ س)</bdi> يساوي:", options:["<bdi>٥ س</bdi>","<bdi>٦ س²</bdi>","<bdi>٦ س</bdi>","<bdi>٥ س²</bdi>"], answer:1 },
+      { q:"ناتج ضرب: <bdi>٣ × (٢ س + ٤)</bdi> يساوي:", options:["<bdi>٦ س + ٤</bdi>","<bdi>٦ س + ١٢</bdi>","<bdi>٥ س + ٧</bdi>","<bdi>١٨ س</bdi>"], answer:1 },
+      { q:"ناتج ضرب: <bdi>س × (س + ٥)</bdi> يساوي:", options:["<bdi>س² + ٥ س</bdi>","<bdi>٢ س + ٥</bdi>","<bdi>س² + ٥</bdi>","<bdi>٥ س²</bdi>"], answer:0 },
+      { q:"ناتج ضرب: <bdi>-٢ ص × (٣ ص)</bdi> يساوي:", options:["<bdi>-٦ ص²</bdi>","<bdi>٦ ص²</bdi>","<bdi>-٥ ص</bdi>","<bdi>-٦ ص</bdi>"], answer:0 },
+      { q:"عند قسمة حد جبري على آخر له الأساس نفسه، فإننا بالنسبة للأسس:", options:["نجمعها","نطرحها","نضربها","نقسمها"], answer:1 },
+      { q:"ناتج قسمة: <bdi>٦ س³ ÷ ( ٢ س )</bdi> يساوي:", options:["<bdi>٣ س²</bdi>","<bdi>٤ س²</bdi>","<bdi>٣ س</bdi>","<bdi>١٢ س⁴</bdi>"], answer:0 },
+      { q:"ناتج قسمة: <bdi>( ٨ س + ٤ ) ÷ ٤</bdi> يساوي:", options:["<bdi>٢ س + ١</bdi>","<bdi>٢ س + ٤</bdi>","<bdi>٨ س + ١</bdi>","<bdi>٢ س</bdi>"], answer:0 },
+      { q:"قيمة <bdi>س⁰</bdi> (حيث س ≠ ٠) تساوي دائماً:", options:["<bdi>٠</bdi>","<bdi>١</bdi>","<bdi>س</bdi>","غير معرّف"], answer:1 },
+      { q:"ناتج قسمة: <bdi>-١٥ ص⁴ ÷ ( ٣ ص² )</bdi> يساوي:", options:["<bdi>-٥ ص²</bdi>","<bdi>٥ ص²</bdi>","<bdi>-٥ ص</bdi>","<bdi>-١٢ ص²</bdi>"], answer:0 },
+      { q:"ناتج ضرب: <bdi>( س + ٢ ) ( س + ٣ )</bdi> يساوي:", options:["<bdi>س² + ٥ س + ٦</bdi>","<bdi>س² + ٦</bdi>","<bdi>س² + ٥ س + ٥</bdi>","<bdi>٢ س + ٥</bdi>"], answer:0 },
+      { q:"ناتج ضرب: <bdi>( س + ٤ ) ( س - ٤ )</bdi> يساوي:", options:["<bdi>س² - ١٦</bdi>","<bdi>س² + ١٦</bdi>","<bdi>س² - ٨</bdi>","<bdi>س² - ٨ س - ١٦</bdi>"], answer:0 },
+      { q:"مفكوك المربع الكامل: <bdi>( س + ٣ )²</bdi> هو:", options:["<bdi>س² + ٦ س + ٩</bdi>","<bdi>س² + ٩</bdi>","<bdi>س² + ٦</bdi>","<bdi>س² + ٣ س + ٩</bdi>"], answer:0 },
+      { q:"ناتج ضرب: <bdi>( س - ١ ) ( س + ٥ )</bdi> يساوي:", options:["<bdi>س² + ٤ س - ٥</bdi>","<bdi>س² - ٥</bdi>","<bdi>س² - ٤ س - ٥</bdi>","<bdi>س² + ٥ س - ١</bdi>"], answer:0 },
+      { q:"مفكوك: <bdi>( س - ٤ )²</bdi> هو:", options:["<bdi>س² - ٨ س + ١٦</bdi>","<bdi>س² - ١٦</bdi>","<bdi>س² + ١٦</bdi>","<bdi>س² - ٤ س + ١٦</bdi>"], answer:0 },
+      { q:"خارج قسمة: <bdi>( س² - ٩ ) ÷ ( س - ٣ )</bdi> يساوي:", options:["<bdi>س + ٣</bdi>","<bdi>س - ٣</bdi>","<bdi>س + ٩</bdi>","<bdi>س - ٩</bdi>"], answer:0 },
+      { q:"خارج قسمة: <bdi>( س² + ٥ س + ٦ ) ÷ ( س + ٢ )</bdi> يساوي:", options:["<bdi>س + ٣</bdi>","<bdi>س + ٤</bdi>","<bdi>س - ٣</bdi>","<bdi>س + ١</bdi>"], answer:0 },
+      { q:"في عملية القسمة المطولة للمقادير، العلاقة الأساسية للتحقق هي: المقسوم = :", options:["<bdi>(المقسوم عليه × خارج القسمة) + الباقي</bdi>","المقسوم عليه + خارج القسمة","المقسوم عليه ÷ خارج القسمة","خارج القسمة - الباقي"], answer:0 },
+      { q:"خارج قسمة: <bdi>( س² - ٤ ) ÷ ( س + ٢ )</bdi> يساوي:", options:["<bdi>س - ٢</bdi>","<bdi>س + ٢</bdi>","<bdi>س - ٤</bdi>","<bdi>س + ٤</bdi>"], answer:0 },
+      { q:"عند إجراء قسمة المقادير الجبرية، يجب ترتيب حدود المقسوم والمقسوم عليه حسب أسس المتغير ترتيباً:", options:["تصاعدياً أو تنازلياً مع مراعاة الترتيب","عشوائياً","أبجدياً فقط","حسب المعاملات"], answer:0 },
+      { q:"العامل المشترك الأكبر (ع.م.أ) للعددين ١٢ و ١٨ هو:", options:["<bdi>٢</bdi>","<bdi>٣</bdi>","<bdi>٦</bdi>","<bdi>١٢</bdi>"], answer:2 },
+      { q:"العامل المشترك الأكبر للحدين: <bdi>٤ س²</bdi> و <bdi>٦ س</bdi> هو:", options:["<bdi>٢ س</bdi>","<bdi>٤ س</bdi>","<bdi>٢ س²</bdi>","<bdi>١٢ س²</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>٥ س + ١٥</bdi> باستخراج ع.م.أ هو:", options:["<bdi>٥ ( س + ٣ )</bdi>","<bdi>٥ ( س + ١٥ )</bdi>","<bdi>س ( ٥ + ٣ )</bdi>","<bdi>١٥ ( س + ١ )</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>س² + ٤ س</bdi> هو:", options:["<bdi>س ( س + ٤ )</bdi>","<bdi>س ( س + ٢ )</bdi>","<bdi>٤ ( س + ١ )</bdi>","<bdi>س² ( ١ + ٤ )</bdi>"], answer:0 },
+      { q:"ع.م.أ للحدود: <bdi>س³ ، س² ، س⁵</bdi> هو:", options:["<bdi>س²</bdi>","<bdi>س³</bdi>","<bdi>س⁵</bdi>","<bdi>س</bdi>"], answer:0 },
+      { q:"القاعدة العامة لتحليل الفرق بين مربعين <bdi>س² - ص²</bdi> هي:", options:["<bdi>( س - ص ) ( س + ص )</bdi>","<bdi>( س - ص )²</bdi>","<bdi>( س + ص )²</bdi>","<bdi>س² - ٢ س ص + ص²</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>س² - ٩</bdi> هو:", options:["<bdi>( س - ٣ ) ( س + ٣ )</bdi>","<bdi>( س - ٩ ) ( س + ١ )</bdi>","<bdi>( س - ٣ )²</bdi>","<bdi>( س + ٣ )²</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>ص² - ٢٥</bdi> هو:", options:["<bdi>( ص - ٥ ) ( ص + ٥ )</bdi>","<bdi>( ص - ٢٥ ) ( ص + ١ )</bdi>","<bdi>( ص - ٥ )²</bdi>","<bdi>( ص + ٥ )²</bdi>"], answer:0 },
+      { q:"أي من المقادير الآتية يمثل فرقاً بين مربعين؟", options:["<bdi>س² + ٤</bdi>","<bdi>س² - ١٦</bdi>","<bdi>س² - ٥</bdi>","<bdi>س³ - ٨</bdi>"], answer:1 },
+      { q:"تحليل المقدار: <bdi>٤ س² - ١</bdi> هو:", options:["<bdi>( ٢ س - ١ ) ( ٢ س + ١ )</bdi>","<bdi>( ٤ س - ١ ) ( ٤ س + ١ )</bdi>","<bdi>( ٢ س - ١ )²</bdi>","<bdi>( ٢ س + ١ )²</bdi>"], answer:0 }
+    ]
+  },
+  medium: {
+    title:"المستوى الثاني: الأسئلة المتوسطة",
+    color:"var(--medium)",
+    questions:[
+      { q:"تبسيط المقدار: <bdi>٥ س + ٤ ص - ٢ س + ٣ ص</bdi> يساوي:", options:["<bdi>٣ س + ٧ ص</bdi>","<bdi>٧ س + ٧ ص</bdi>","<bdi>٣ س - ص</bdi>","<bdi>١٠ س ص</bdi>"], answer:0 },
+      { q:"ناتج طرح <bdi>٣ س</bdi> من <bdi>٨ س</bdi> يساوي:", options:["<bdi>٥ س</bdi>","<bdi>-٥ س</bdi>","<bdi>١١ س</bdi>","<bdi>٢٤ س</bdi>"], answer:0 },
+      { q:"مجموع المقدارين: <bdi>(٢ س² + ٣ س - ٤)</bdi> و <bdi>(س² - س + ٦)</bdi> هو:", options:["<bdi>٣ س² + ٢ س + ٢</bdi>","<bdi>٣ س² + ٤ س + ٢</bdi>","<bdi>٢ س² + ٢ س - ٢</bdi>","<bdi>٣ س² + ٢ س - ١٠</bdi>"], answer:0 },
+      { q:"محيط مستطيل طوله س وعرضه ص يعبر عنه بالمقدار الجبري:", options:["<bdi>س ص</bdi>","<bdi>٢ س + ٢ ص</bdi>","<bdi>س + ص</bdi>","<bdi>٢ س ص</bdi>"], answer:1 },
+      { q:"ما زيادة المقدار <bdi>٥ س²</bdi> عن المقدار <bdi>٣ س²</bdi>؟", options:["<bdi>٢ س²</bdi>","<bdi>٨ س²</bdi>","<bdi>-٢ س²</bdi>","<bdi>١٥ س⁴</bdi>"], answer:0 },
+      { q:"ناتج ضرب: <bdi>٤ س ( ٢ س + س ص )</bdi> يساوي:", options:["<bdi>٨ س² + ٤ س² ص</bdi>","<bdi>٨ س + ٤ س ص</bdi>","<bdi>٦ س² + ٤ س ص</bdi>","<bdi>٨ س² + س ص</bdi>"], answer:0 },
+      { q:"ناتج ضرب: <bdi>-٣ أ ( ٢ أ - ٥ ب )</bdi> يساوي:", options:["<bdi>-٦ أ² + ١٥ أ ب</bdi>","<bdi>-٦ أ² - ١٥ أ ب</bdi>","<bdi>٦ أ² + ١٥ أ ب</bdi>","<bdi>- أ² + ٢ أ ب</bdi>"], answer:0 },
+      { q:"مساحة مستطيل عرضه <bdi>٣ س</bdi> وطوله <bdi>( ٢ س + ٥ )</bdi> تساوي:", options:["<bdi>٦ س² + ١٥ س</bdi>","<bdi>٥ س + ٥</bdi>","<bdi>٦ س + ١٥</bdi>","<bdi>٦ س² + ٥</bdi>"], answer:0 },
+      { q:"ناتج ضرب: <bdi>٢ س ص ( س² - ٣ ص² )</bdi> يساوي:", options:["<bdi>٢ س³ ص - ٦ س ص³</bdi>","<bdi>٢ س² ص - ٦ س ص²</bdi>","<bdi>٢ س³ - ٦ ص³</bdi>","<bdi>س³ ص - ٥ س ص³</bdi>"], answer:0 },
+      { q:"الحد الناقص في: <bdi>٢ س ( ....... + ٤ ) = ٦ س² + ٨ س</bdi> هو:", options:["<bdi>٣ س</bdi>","<bdi>٣ س²</bdi>","<bdi>٤ س</bdi>","<bdi>٣</bdi>"], answer:0 },
+      { q:"ناتج قسمة: <bdi>( ٦ س⁵ + ٤ س³ ص ) ÷ ( ٢ س² )</bdi> يساوي:", options:["<bdi>٣ س³ + ٢ س ص</bdi>","<bdi>٣ س³ + ٤ س ص</bdi>","<bdi>٤ س³ + ٢ س ص</bdi>","<bdi>٣ س² + ٢ ص</bdi>"], answer:0 },
+      { q:"ناتج قسمة: <bdi>( ١٢ أ³ ب² - ٨ أ² ب ) ÷ ( ٤ أ² ب )</bdi> يساوي:", options:["<bdi>٣ أ ب - ٢</bdi>","<bdi>٣ أ - ٢ ب</bdi>","<bdi>٣ أ ب - ٤</bdi>","<bdi>٨ أ ب - ٢</bdi>"], answer:0 },
+      { q:"مستطيل مساحته <bdi>( ٨ س² + ١٢ س ) سم²</bdi> وعرضه <bdi>٤ س</bdi> سم، فإن طوله يساوي:", options:["<bdi>٢ س + ٣ سم</bdi>","<bdi>٢ س + ٤ سم</bdi>","<bdi>٤ س + ٣ سم</bdi>","<bdi>٢ س² + ٣ سم</bdi>"], answer:0 },
+      { q:"ناتج تبسيط: <bdi>( ٩ س² ص - ٦ س ص² ) ÷ ( -٣ س ص )</bdi> يساوي:", options:["<bdi>-٣ س + ٢ ص</bdi>","<bdi>٣ س - ٢ ص</bdi>","<bdi>-٣ س - ٢ ص</bdi>","<bdi>٣ س + ٢ ص</bdi>"], answer:0 },
+      { q:"الحد المفقود في: <bdi>( ....... + ٦ س ) ÷ ٢ س = ٥ س + ٣</bdi> هو:", options:["<bdi>١٠ س²</bdi>","<bdi>١٠ س</bdi>","<bdi>٥ س²</bdi>","<bdi>٧ س²</bdi>"], answer:0 },
+      { q:"ناتج ضرب: <bdi>( ٢ س + ٣ ) ( س + ٤ )</bdi> يساوي:", options:["<bdi>٢ س² + ١١ س + ١٢</bdi>","<bdi>٢ س² + ٧ س + ١٢</bdi>","<bdi>٢ س² + ١٢</bdi>","<bdi>٣ س² + ١١ س + ١٢</bdi>"], answer:0 },
+      { q:"مساحة حديقة مربعة الشكل طول ضلعها <bdi>( س + ٥ )</bdi> أمتار تساوي:", options:["<bdi>س² + ١٠ س + ٢٥ م²</bdi>","<bdi>س² + ٢٥ م²</bdi>","<bdi>٤ س + ٢٠ م²</bdi>","<bdi>س² + ٥ س + ٢٥ م²</bdi>"], answer:0 },
+      { q:"ناتج ضرب: <bdi>( ٣ س - ٢ ) ( ٢ س + ١ )</bdi> يساوي:", options:["<bdi>٦ س² - س - ٢</bdi>","<bdi>٦ س² + س - ٢</bdi>","<bdi>٦ س² - ٢</bdi>","<bdi>٥ س² - س - ٢</bdi>"], answer:0 },
+      { q:"مفكوك: <bdi>( ٢ س + ٣ ص )²</bdi> يساوي:", options:["<bdi>٤ س² + ١٢ س ص + ٩ ص²</bdi>","<bdi>٤ س² + ٩ ص²</bdi>","<bdi>٤ س² + ٦ س ص + ٩ ص²</bdi>","<bdi>٢ س² + ١٢ س ص + ٣ ص²</bdi>"], answer:0 },
+      { q:"ناتج ضرب: <bdi>( س + ص ) ( س² - س ص + ص² )</bdi> يساوي:", options:["<bdi>س³ + ص³</bdi>","<bdi>س³ - ص³</bdi>","<bdi>س³ + ٣ س ص + ص³</bdi>","<bdi>(س + ص)³</bdi>"], answer:0 },
+      { q:"خارج قسمة: <bdi>( ٢ س² + ٩ س + ٤ ) ÷ ( س + ٤ )</bdi> يساوي:", options:["<bdi>٢ س + ١</bdi>","<bdi>٢ س + ٤</bdi>","<bdi>س + ١</bdi>","<bdi>٢ س - ١</bdi>"], answer:0 },
+      { q:"خارج قسمة: <bdi>( س² - ٧ س + ١٢ ) ÷ ( س - ٣ )</bdi> يساوي:", options:["<bdi>س - ٤</bdi>","<bdi>س + ٤</bdi>","<bdi>س - ٩</bdi>","<bdi>س + ١</bdi>"], answer:0 },
+      { q:"مستطيل مساحته <bdi>( س² + ٧ س + ١٠ ) م²</bdi> وطوله <bdi>( س + ٥ ) م</bdi>، فإن عرضه يساوي:", options:["<bdi>س + ٢ م</bdi>","<bdi>س + ٥ م</bdi>","<bdi>س - ٢ م</bdi>","<bdi>س + ٣ م</bdi>"], answer:0 },
+      { q:"خارج قسمة: <bdi>( س³ + ٨ ) ÷ ( س + ٢ )</bdi> يساوي:", options:["<bdi>س² - ٢ س + ٤</bdi>","<bdi>س² + ٤</bdi>","<bdi>س² + ٢ س + ٤</bdi>","<bdi>س² - ٤</bdi>"], answer:0 },
+      { q:"باقي قسمة: <bdi>( س² + ٤ س + ٥ ) ÷ ( س + ٢ )</bdi> هو:", options:["<bdi>١</bdi>","<bdi>٠</bdi>","<bdi>٢</bdi>","<bdi>-١</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>٦ س² ص - ٩ س ص²</bdi> باستخراج ع.م.أ هو:", options:["<bdi>٣ س ص ( ٢ س - ٣ ص )</bdi>","<bdi>٣ س ( ٢ س - ٣ ص )</bdi>","<bdi>س ص ( ٦ س - ٩ ص )</bdi>","<bdi>٩ س ص ( س - ص )</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>١٤ أ³ - ٢١ أ² ب</bdi> هو:", options:["<bdi>٧ أ² ( ٢ أ - ٣ ب )</bdi>","<bdi>٧ أ ( ٢ أ² - ٣ ب )</bdi>","<bdi>١٤ أ² ( أ - ب )</bdi>","<bdi>٧ ( ٢ أ³ - ٣ أ² ب )</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>أ ( س + ٢ ) + ب ( س + ٢ )</bdi> هو:", options:["<bdi>( س + ٢ ) ( أ + ب )</bdi>","<bdi>( س + ٢ ) أ ب</bdi>","<bdi>( أ + ب ) + ( س + ٢ )</bdi>","<bdi>( أ - ب ) ( س + ٢ )</bdi>"], answer:0 },
+      { q:"ع.م.أ للحدود الثلاثة: <bdi>٨ س³ ص ، ١٢ س² ص² ، ١٦ س ص³</bdi> هو:", options:["<bdi>٤ س ص</bdi>","<bdi>٤ س² ص</bdi>","<bdi>٨ س ص</bdi>","<bdi>٢ س ص</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>٥ س² - ٥</bdi> هو:", options:["<bdi>٥ ( س² - ١ )</bdi>","<bdi>٥ س ( س - ١ )</bdi>","<bdi>٥ ( س - ١ )</bdi>","<bdi>( ٥ س - ٥ )</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>٩ س² - ١٦ ص²</bdi> هو:", options:["<bdi>( ٣ س - ٤ ص ) ( ٣ س + ٤ ص )</bdi>","<bdi>( ٩ س - ١٦ ص ) ( س + ص )</bdi>","<bdi>( ٣ س - ٤ ص )²</bdi>","<bdi>( ٣ س + ٤ ص )²</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>٢ س² - ٥٠</bdi> باستخراج ع.م.أ أولاً هو:", options:["<bdi>٢ ( س - ٥ ) ( س + ٥ )</bdi>","<bdi>( ٢ س - ١٠ ) ( س + ٥ )</bdi>","<bdi>٢ ( س² - ٥٠ )</bdi>","<bdi>( س - ٥ ) ( س + ٥ )</bdi>"], answer:0 },
+      { q:"باستخدام الفرق بين مربعين، ناتج حساب: <bdi>( ٥٢ )² - ( ٤٨ )²</bdi> يساوي:", options:["<bdi>( ٥٢ - ٤٨ ) ( ٥٢ + ٤٨ ) = ٤ × ١٠٠ = ٤٠٠</bdi>","<bdi>٢٠٠</bdi>","<bdi>١٠٠</bdi>","<bdi>٨٠٠</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>س⁴ - ١٦</bdi> تحليلاً كاملاً هو:", options:["<bdi>( س² + ٤ ) ( س - ٢ ) ( س + ٢ )</bdi>","<bdi>( س² - ٤ ) ( س² + ٤ )</bdi> فقط","<bdi>( س - ٢ )² ( س + ٢ )²</bdi>","<bdi>( س - ٤ ) ( س + ٤ )</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>٠,٢٥ س² - ٠,٠٩ ص²</bdi> هو:", options:["<bdi>( ٠,٥ س - ٠,٣ ص ) ( ٠,٥ س + ٠,٣ ص )</bdi>","<bdi>( ٠,٢٥ س - ٠,٠٩ ص )</bdi>","<bdi>( ٠,٥ س - ٠,٣ ص )²</bdi>","<bdi>( ٥ س - ٣ ص )</bdi>"], answer:0 }
+    ]
+  },
+  hard: {
+    title:"المستوى الثالث: الأسئلة الصعبة",
+    color:"var(--hard)",
+    questions:[
+      { q:"اطرح المقدار <bdi>(٢ س - ٣ ص + ٥)</bdi> من المقدار <bdi>(٥ س + ص - ٢)</bdi> يعطي:", options:["<bdi>٣ س + ٤ ص - ٧</bdi>","<bdi>٣ س - ٢ ص + ٣</bdi>","<bdi>-٣ س - ٤ ص + ٧</bdi>","<bdi>٧ س - ٢ ص + ٣</bdi>"], answer:0 },
+      { q:"القيمة العددية للمقدار <bdi>٢ س² - ٣ س + ٥</bdi> عندما س = ٢ تساوي:", options:["<bdi>٧</bdi>","<bdi>٩</bdi>","<bdi>١٥</bdi>","<bdi>٥</bdi>"], answer:0 },
+      { q:"إذا كان محيط مثلث هو <bdi>(٦ س + ٨) سم</bdi>، وطولا ضلعين فيه هما <bdi>(٢ س + ٣)</bdi> و <bdi>(س + ٢)</bdi>، فإن طول الضلع الثالث هو:", options:["<bdi>٣ س + ٣</bdi>","<bdi>٣ س + ٥</bdi>","<bdi>٤ س + ٣</bdi>","<bdi>٢ س + ٤</bdi>"], answer:0 },
+      { q:"ما المقدار الذي يجب إضافته إلى <bdi>(٣ س² - ٤ س + ١)</bdi> ليكون الناتج <bdi>(٥ س² + ٢)</bdi>؟", options:["<bdi>٢ س² + ٤ س + ١</bdi>","<bdi>٢ س² - ٤ س + ١</bdi>","<bdi>-٢ س² - ٤ س - ١</bdi>","<bdi>٨ س² - ٤ س + ٣</bdi>"], answer:0 },
+      { q:"إذا كان عمر أحمد الآن <bdi>س سنة</bdi>، وعمر أخيه يزيد عنه بـ ٤ سنوات، فإن مجموع عمريهما بعد ٣ سنوات هو:", options:["<bdi>٢ س + ١٠</bdi>","<bdi>٢ س + ٤</bdi>","<bdi>٢ س + ٧</bdi>","<bdi>س + ٧</bdi>"], answer:0 },
+      { q:"القيمة العددية للمقدار <bdi>٣ س ( ٢ س - ٤ )</bdi> عندما س = ٣ تساوي:", options:["<bdi>١٨</bdi>","<bdi>٥٤</bdi>","<bdi>١٢</bdi>","<bdi>٣٦</bdi>"], answer:0 },
+      { q:"ناتج ضرب: <bdi>-٢ س² ص ( ٣ س ص² - ٤ س² ص + ٥ )</bdi> يساوي:", options:["<bdi>-٦ س³ ص³ + ٨ س⁴ ص² - ١٠ س² ص</bdi>","<bdi>-٦ س² ص² + ٨ س² ص - ١٠</bdi>","<bdi>٦ س³ ص³ - ٨ س⁴ ص² + ١٠</bdi>","<bdi>-٥ س³ ص³ + ٦ س⁴ ص² - ٧</bdi>"], answer:0 },
+      { q:"اختصر لأبسط صورة: <bdi>٢ س ( س + ٣ ) - س ( ٢ س - ٤ )</bdi> يعطي:", options:["<bdi>١٠ س</bdi>","<bdi>٤ س² + ١٠ س</bdi>","<bdi>٢ س</bdi>","<bdi>١٠ س²</bdi>"], answer:0 },
+      { q:"مثلث طول قاعدته <bdi>( ٤ س + ٦ )</bdi> وارتفاعه <bdi>س</bdi>، فإن مساحته تساوي:", options:["<bdi>٢ س² + ٣ س</bdi>","<bdi>٤ س² + ٦ س</bdi>","<bdi>٢ س + ٣</bdi>","<bdi>س² + ٦ س</bdi>"], answer:0 },
+      { q:"إذا كان ثمن الدفتر <bdi>( ٢ س + ٥٠ ) ريالاً</bdi>، فإن ثمن <bdi>٣ س</bdi> دفتراً يساوي:", options:["<bdi>٦ س² + ١٥٠ س</bdi>","<bdi>٥ س + ١٥٠</bdi>","<bdi>٦ س + ٥٠</bdi>","<bdi>٦ س² + ٥٠</bdi>"], answer:0 },
+      { q:"ناتج قسمة: <bdi>( ١٦ س⁴ ص³ - ٢٤ س³ ص² + ٨ س² ص ) ÷ ( ٨ س² ص )</bdi> يساوي:", options:["<bdi>٢ س² ص² - ٣ س ص + ١</bdi>","<bdi>٢ س² ص² - ٣ س ص</bdi>","<bdi>٢ س² ص - ٣ س + ١</bdi>","<bdi>س² ص² - ٣ س ص + ١</bdi>"], answer:0 },
+      { q:"متوازي أضلاع مساحته <bdi>( ١٥ س³ ص² - ١٠ س² ص³ ) سم²</bdi> وطول قاعدته <bdi>٥ س² ص² سم</bdi>، فإن ارتفاعه يساوي:", options:["<bdi>٣ س - ٢ ص سم</bdi>","<bdi>٣ س² - ٢ ص² سم</bdi>","<bdi>٣ س + ٢ ص سم</bdi>","<bdi>٥ س - ص سم</bdi>"], answer:0 },
+      { q:"القيمة العددية لخارج قسمة <bdi>( ٦ س² + ٩ س ) ÷ ( ٣ س )</bdi> عندما س = ٤ تساوي:", options:["<bdi>١١</bdi>","<bdi>٩</bdi>","<bdi>١٥</bdi>","<bdi>٧</bdi>"], answer:0 },
+      { q:"إذا كان حاصل ضرب مقدارين هو <bdi>( ٤ س³ ص + ١٢ س² ص² )</bdi> وكان أحدهما <bdi>٤ س² ص</bdi>، فإن الآخر هو:", options:["<bdi>س + ٣ ص</bdi>","<bdi>س + ٤ ص</bdi>","<bdi>س² + ٣ ص</bdi>","<bdi>٤ س + ٣ ص</bdi>"], answer:0 },
+      { q:"أضف خارج قسمة <bdi>( ٦ س² - ٤ س ) ÷ ( ٢ س )</bdi> إلى المقدار <bdi>( س + ٥ )</bdi>، يكون الناتج:", options:["<bdi>٤ س + ٣</bdi>","<bdi>٢ س + ٣</bdi>","<bdi>٤ س + ٧</bdi>","<bdi>٣ س + ٥</bdi>"], answer:0 },
+      { q:"ناتج ضرب: <bdi>( س + ٢ ) ( س² - ٢ س + ٤ )</bdi> يساوي:", options:["<bdi>س³ + ٨</bdi>","<bdi>س³ - ٨</bdi>","<bdi>س³ + ٤ س + ٨</bdi>","<bdi>س² - ٤</bdi>"], answer:0 },
+      { q:"اختصر لأبسط صورة: <bdi>( س + ٣ )² - ( س - ٣ )²</bdi> يعطي:", options:["<bdi>١٢ س</bdi>","<bdi>٢ س² + ١٨</bdi>","<bdi>٦ س</bdi>","<bdi>٠</bdi>"], answer:0 },
+      { q:"حوض زهور مستطيل أبعاده <bdi>( س + ٤ )</bdi> و <bdi>( س - ٢ )</bdi>، فإن مساحته بدلالة س هي:", options:["<bdi>س² + ٢ س - ٨</bdi>","<bdi>س² - ٨</bdi>","<bdi>س² + ٦ س - ٨</bdi>","<bdi>٢ س + ٢</bdi>"], answer:0 },
+      { q:"إذا كان <bdi>( س + ص ) = ٥</bdi> و <bdi>( س - ص ) = ٣</bdi>، فإن قيمة <bdi>س² - ص²</bdi> تساوي:", options:["<bdi>١٥</bdi>","<bdi>٨</bdi>","<bdi>٢</bdi>","<bdi>١٦</bdi>"], answer:0 },
+      { q:"ناتج ضرب المقدارين رأسياً: <bdi>( س² + ٢ س + ٣ )</bdi> في <bdi>( س + ١ )</bdi> هو:", options:["<bdi>س³ + ٣ س² + ٥ س + ٣</bdi>","<bdi>س³ + ٢ س² + ٣ س + ٣</bdi>","<bdi>س³ + ٣ س + ٣</bdi>","<bdi>س³ + ٥ س² + ٥ س + ٣</bdi>"], answer:0 },
+      { q:"خارج قسمة: <bdi>( س³ - س² - ١٤ س + ٢٤ ) ÷ ( س - ٢ )</bdi> يساوي:", options:["<bdi>س² + س - ١٢</bdi>","<bdi>س² - س + ١٢</bdi>","<bdi>س² + ٣ س - ١٢</bdi>","<bdi>س² - ٣</bdi>"], answer:0 },
+      { q:"قيمة ك التي تجعل المقدار <bdi>( س² + ٥ س + ك )</bdi> يقبل القسمة على <bdi>( س + ٢ )</bdi> هي:", options:["<bdi>٦</bdi>","<bdi>١٠</bdi>","<bdi>٤</bdi>","<bdi>٨</bdi>"], answer:0 },
+      { q:"خارج قسمة: <bdi>( ٦ س² + س - ١٥ ) ÷ ( ٢ س - ٣ )</bdi> يساوي:", options:["<bdi>٣ س + ٥</bdi>","<bdi>٣ س - ٥</bdi>","<bdi>٢ س + ٥</bdi>","<bdi>٣ س + ٣</bdi>"], answer:0 },
+      { q:"معين مساحته <bdi>( ١٥ س² - ١١ س - ١٤ ) سم²</bdi> وطول أحد قطريه <bdi>( ٣ س + ٢ ) سم</bdi>، فإن طول القطر الآخر (علماً بأن المساحة = نصف حاصل ضرب القطرين) هو:", options:["<bdi>٢ × ( ٥ س - ٧ ) سم</bdi>","<bdi>٥ س - ٧ سم</bdi>","<bdi>٥ س + ٧ سم</bdi>","<bdi>١٠ س - ٧ سم</bdi>"], answer:0 },
+      { q:"خارج قسمة: <bdi>( س³ - ٢٧ ص³ ) ÷ ( س - ٣ ص )</bdi> يساوي:", options:["<bdi>س² + ٣ س ص + ٩ ص²</bdi>","<bdi>س² - ٣ س ص + ٩ ص²</bdi>","<bdi>س² + ٩ ص²</bdi>","<bdi>س² - ٩ ص²</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>٢ س ( أ - ب ) - ٣ ص ( أ - ب )</bdi> هو:", options:["<bdi>( أ - ب ) ( ٢ س - ٣ ص )</bdi>","<bdi>( أ - ب ) ( ٢ س + ٣ ص )</bdi>","<bdi>( أ + ب ) ( ٢ س - ٣ ص )</bdi>","<bdi>٢ س ٣ ص ( أ - ب )</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>٤ س³ - ٨ س² + ١٢ س</bdi> هو:", options:["<bdi>٤ س ( س² - ٢ س + ٣ )</bdi>","<bdi>٤ س² ( س - ٢ ) + ١٢</bdi>","<bdi>٢ س ( ٢ س² - ٤ س + ٦ )</bdi>","<bdi>٤ ( س³ - ٢ س² + ٣ س )</bdi>"], answer:0 },
+      { q:"إذا كان <bdi>٥ س + ٥ ص = ٣٥</bdi>، فإن قيمة المقدار <bdi>س + ص</bdi> تساوي:", options:["<bdi>٧</bdi>","<bdi>٥</bdi>","<bdi>٣٠</bdi>","<bdi>١٧٥</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>س ( ص - ع ) + ( ع - ص )</bdi> هو:", options:["<bdi>( ص - ع ) ( س - ١ )</bdi>","<bdi>( ص - ع ) ( س + ١ )</bdi>","<bdi>( ع - ص ) ( س - ١ )</bdi>","<bdi>( ص + ع ) ( س - ١ )</bdi>"], answer:0 },
+      { q:"إذا كان <bdi>أ ب = ٦</bdi> و <bdi>أ ج = ٩</bdi>، فإن القيمة العددية لـ <bdi>أ ( ب + ج )</bdi> تساوي:", options:["<bdi>١٥</bdi>","<bdi>٥٤</bdi>","<bdi>٣</bdi>","<bdi>١٢</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>( س + ١ )² - ٩</bdi> هو:", options:["<bdi>( س - ٢ ) ( س + ٤ )</bdi>","<bdi>( س + ٤ ) ( س - ٤ )</bdi>","<bdi>( س + ١ - ٣ )²</bdi>","<bdi>( س - ٨ ) ( س + ١٠ )</bdi>"], answer:0 },
+      { q:"إذا كان <bdi>س² - ص² = ٢٤</bdi> و <bdi>( س - ص ) = ٤</bdi>، فإن قيمة <bdi>( س + ص )</bdi> تساوي:", options:["<bdi>٦</bdi>","<bdi>٢٠</bdi>","<bdi>٩٦</bdi>","<bdi>٢٨</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>٣ أ² - ٢٧ ج²</bdi> هو:", options:["<bdi>٣ ( أ - ٣ ج ) ( أ + ٣ ج )</bdi>","<bdi>( ٣ أ - ٩ ج ) ( أ + ٣ ج )</bdi>","<bdi>٣ ( أ² - ٩ )</bdi>","<bdi>( أ - ٣ ج ) ( أ + ٣ ج )</bdi>"], answer:0 },
+      { q:"باستخدام الفرق بين مربعين، ناتج: <bdi>٩٩ × ١٠١ = ( ١٠٠ - ١ ) ( ١٠٠ + ١ )</bdi> يساوي:", options:["<bdi>١٠٠٠٠ - ١ = ٩٩٩٩</bdi>","<bdi>٩٩٩٠</bdi>","<bdi>١٠٠٠١</bdi>","<bdi>٩٩٠٠</bdi>"], answer:0 },
+      { q:"تحليل المقدار: <bdi>س² / ٤ - ص² / ٩</bdi> هو:", options:["<bdi>( س/٢ - ص/٣ ) ( س/٢ + ص/٣ )</bdi>","<bdi>( س/٤ - ص/٩ ) ( س + ص )</bdi>","<bdi>( س/٢ - ص/٣ )²</bdi>","<bdi>( س - ص ) / ٦</bdi>"], answer:0 }
+    ]
+  }
+};
+
+/* دوال اللعبة */
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function formatTime(sec){
+  const m = String(Math.floor(sec/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+let currentLevelKey = '';
+let currentQuestions = [];
+let currentQuestionIndex = 0;
+let score = 0;
+let isAnswering = false;
+let wrongAnswers = [];
+let timerInterval = null;
+let elapsedSeconds = 0;
+let gameStartTime = 0;
+
+function renderBestRecords(){
+  ['easy','medium','hard'].forEach(level => {
+    const btn = document.getElementById('btn-' + level);
+    if(!btn) return;
+    const old = btn.querySelector('.record-tag');
+    if(old) old.remove();
+    const best = localStorage.getItem('bestScore_' + level + '_unit3');
+    if(best !== null){
+      const tag = document.createElement('span');
+      tag.className = 'record-tag';
+      tag.textContent = '🏅 أفضل: ' + best + '/35';
+      btn.appendChild(tag);
+    }
+  });
+}
+
+function prepareQuestions(level){
+  return shuffle(quizData[level].questions).map(q => {
+    const opts = q.options.map((text,i)=>({ text, correct: i===q.answer }));
+    return { q: q.q, options: shuffle(opts) };
+  });
+}
+
+function startGame(level){
+  if(getAudioCtx()) {}
+  currentLevelKey = level;
+  currentQuestions = prepareQuestions(level);
+  currentQuestionIndex = 0;
+  score = 0;
+  wrongAnswers = [];
+  elapsedSeconds = 0;
+  isAnswering = false;
+
+  document.getElementById('score').innerText = '0';
+  document.getElementById('timer').innerText = '00:00';
+  document.getElementById('progress-fill').style.width = '0%';
+
+  const badge = document.getElementById('current-level-badge');
+  badge.innerText = quizData[level].title;
+  badge.style.backgroundColor = quizData[level].color;
+
+  startTimer();
+  showScreen('game-screen');
+  loadQuestion();
+}
+
+function startTimer(){
+  stopTimer();
+  gameStartTime = Date.now();
+  timerInterval = setInterval(()=>{
+    elapsedSeconds = Math.floor((Date.now() - gameStartTime)/1000);
+    document.getElementById('timer').innerText = formatTime(elapsedSeconds);
+  }, 500);
+}
+
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+}
+
+function loadQuestion(){
+  isAnswering = false;
+  const currentQ = currentQuestions[currentQuestionIndex];
+
+  document.getElementById('q-counter').innerText = `${currentQuestionIndex+1}/${currentQuestions.length}`;
+  document.getElementById('question-text').innerHTML = currentQ.q;
+
+  const pct = (currentQuestionIndex / currentQuestions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const letters = ['أ','ب','ج','د'];
+
+  currentQ.options.forEach((opt, index)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="key-hint">${letters[index]}</span> <span>${opt.text}</span>`;
+    btn.onclick = () => checkAnswer(index, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function checkAnswer(selectedIndex, btnElement){
+  if(isAnswering) return;
+  isAnswering = true;
+
+  const currentQ = currentQuestions[currentQuestionIndex];
+  const allButtons = document.querySelectorAll('.option-btn');
+  allButtons.forEach(b => b.disabled = true);
+
+  const correctIndex = currentQ.options.findIndex(o => o.correct);
+
+  if(selectedIndex === correctIndex){
+    btnElement.classList.add('correct');
+    score++;
+    document.getElementById('score').innerText = score;
+    playSound(true);
+  } else {
+    btnElement.classList.add('wrong');
+    allButtons[correctIndex].classList.add('correct');
+    playSound(false);
+
+    const letters = ['أ','ب','ج','د'];
+    wrongAnswers.push({
+      q: currentQ.q,
+      letter: letters[selectedIndex],
+      userAnswer: currentQ.options[selectedIndex].text,
+      correctLetter: letters[correctIndex],
+      correctAnswer: currentQ.options[correctIndex].text
+    });
+  }
+
+  const pctAfter = ((currentQuestionIndex+1) / currentQuestions.length) * 100;
+  document.getElementById('progress-fill').style.width = pctAfter + '%';
+
+  setTimeout(()=>{
+    currentQuestionIndex++;
+    if(currentQuestionIndex < currentQuestions.length){
+      loadQuestion();
+    } else {
+      endGame();
+    }
+  }, 1100);
+}
+
+function endGame(){
+  stopTimer();
+  showScreen('result-screen');
+
+  const total = currentQuestions.length;
+  const pct = score / total;
+
+  document.getElementById('final-score').innerText = score;
+  document.getElementById('final-time').innerText = formatTime(elapsedSeconds);
+
+  const stars = document.getElementById('stars-row');
+  const recordBox = document.getElementById('record-container');
+  recordBox.innerHTML = '';
+
+  let starCount = (pct === 1) ? 3 : (pct >= 0.7) ? 2 : (pct >= 0.4) ? 1 : 0;
+  stars.innerText = '⭐'.repeat(starCount) + '☆'.repeat(3 - starCount);
+
+  document.getElementById('review-btn').style.display = wrongAnswers.length ? 'inline-block' : 'none';
+
+  const bestKey = 'bestScore_' + currentLevelKey + '_unit3';
+  const prevBest = parseInt(localStorage.getItem(bestKey) || '0', 10);
+  if(score > prevBest){
+    localStorage.setItem(bestKey, score);
+    const banner = document.createElement('div');
+    banner.className = 'record-banner';
+    banner.textContent = '🎉 رقم قياسي جديد! 🎉';
+    recordBox.appendChild(banner);
+  } else if(prevBest > 0){
+    const info = document.createElement('div');
+    info.style.color = '#475569';
+    info.style.fontWeight = '700';
+    info.textContent = '🏅 أفضل نتيجة سابقة: ' + prevBest + '/' + total;
+    recordBox.appendChild(info);
+  }
+}
+
+function showReview(){
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  wrongAnswers.forEach((w, i)=>{
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    item.innerHTML = `<div class="r-q">${i+1}) ${w.q}</div>
+      <div class="r-ans">❌ إجابتك <b>(${w.letter})</b>: <span class="r-wrong">${w.userAnswer}</span></div>
+      <div class="r-ans">✅ الإجابة الصحيحة <b>(${w.correctLetter})</b>: <span class="r-right">${w.correctAnswer}</span></div>`;
+    list.appendChild(item);
+  });
+  showScreen('review-screen');
+}
+
+function restartSameLevel(){
+  if(currentLevelKey) startGame(currentLevelKey);
+}
+
+renderBestRecords();
+</script>
+</body>
+</html>

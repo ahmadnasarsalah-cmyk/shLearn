@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- عنوان علامة التبويب في المتصفح -->
+    <title>منصة الأستاذة شهد التعليمية | رياضيات ثامن</title>
+    
+    <!-- ربط ملف التصميم الذي سنكتبه لاحقاً -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- الترويسة العلوية -->
+    <header>
+        <div class="header-titles">
+            <h1>منصة الأستاذة شهد التعليمية</h1>
+            <h2>مادة الرياضيات - الصف الثامن</h2>
+        </div>
+        
+        <!-- أزرار التبديل الرئيسية -->
+        <nav class="main-tabs">
+            <button onclick="switchTab('lessons-tab')" class="tab-btn active" id="btn-lessons">الدروس التعليمية</button>
+            <button onclick="switchTab('tests-tab')" class="tab-btn" id="btn-tests">اختبارات الوحدات</button>
+        </nav>
+    </header>
+
+    <!-- المحتوى الرئيسي للمنصة -->
+    <main>
+        
+        <!-- ================= قسم الدروس التعليمية ================= -->
+        <section id="lessons-tab" class="tab-content active-content">
+            
+            <!-- حاوية أزرار الوحدات (سيتم توليدها برمجياً) -->
+            <div id="units-nav" class="units-navigation">
+                <!-- الأزرار ستظهر هنا (الوحدة الأولى، الوحدة الثانية...) -->
+            </div>
+            
+            <!-- حاوية عرض الفيديوهات -->
+            <div id="videos-container" class="videos-grid">
+                <div class="welcome-message">
+                    <p>أهلاً بك في قسم الدروس.. الرجاء اختيار الوحدة من الأعلى للبدء.</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= قسم الاختبارات ================= -->
+        <section id="tests-tab" class="tab-content">
+            
+            <div class="tests-container">
+                <h3>اختبر معلوماتك في الوحدات التالية:</h3>
+                <div class="tests-grid">
+                    <!-- افتراض أن ملفات الاختبارات الجاهزة لديك موجودة في مجلد اسمه tests -->
+                    <a href="tests/test_unit1.html" class="test-card">اختبار الوحدة الأولى</a>
+                    <a href="tests/test_unit2.html" class="test-card">اختبار الوحدة الثانية</a>
+                    <a href="tests/test_unit3.html" class="test-card">اختبار الوحدة الثالثة</a>
+                    <a href="tests/test_unit4.html" class="test-card">اختبار الوحدة الرابعة</a>
+                    <a href="tests/test_unit5.html" class="test-card">اختبار الوحدة الخامسة</a>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- تذييل الصفحة -->
+    <footer>
+        <p>جميع الحقوق محفوظة &copy; 2026 | منصة الأستاذة شهد التعليمية</p>
+    </footer>
+
+    <!-- ربط ملفات الجافاسكريبت (البيانات والمنطق البرمجي) -->
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    
+</body>
+</html>

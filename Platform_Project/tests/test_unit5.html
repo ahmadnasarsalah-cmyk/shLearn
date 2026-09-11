@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تحدي الهندسة التحليلية | منصة الأستاذة شهد</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-gradient-start:#e0f2fe; --bg-gradient-end:#bae6fd;
+  --card-bg:rgba(255,255,255,0.95);
+  --text-main:#0c4a6e; --text-muted:#475569;
+  --primary:#0284c7; --primary-hover:#0369a1;
+  --border-color:#cbd5e1;
+  --easy:#0ea5e9; --easy-hover:#0284c7;
+  --medium:#3b82f6; --medium-hover:#2563eb;
+  --hard:#6366f1; --hard-hover:#4f46e5;
+  --correct-bg:#d1fae5; --correct-border:#10b981; --correct-text:#047857;
+  --wrong-bg:#fee2e2; --wrong-border:#ef4444; --wrong-text:#b91c1c;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Tajawal',sans-serif;}
+body{
+  background:linear-gradient(135deg,var(--bg-gradient-start) 0%,var(--bg-gradient-end) 100%);
+  color:var(--text-main);min-height:100vh;display:flex;justify-content:center;
+  align-items:center;padding:20px;overflow-x:hidden;
+}
+.container{width:100%;max-width:820px;}
+.card{
+  background-color:var(--card-bg);border-radius:24px;padding:40px;
+  box-shadow:0 20px 40px -15px rgba(2,132,199,.2);
+  border:1px solid rgba(255,255,255,.5);backdrop-filter:blur(10px);
+  position:relative;overflow:hidden;
+}
+.screen{display:none;flex-direction:column;align-items:center;text-align:center;animation:fadeIn .5s ease;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+
+.card-top-bar{position:absolute;top:15px;left:15px;display:flex;gap:8px;z-index:5;}
+.icon-btn{
+  width:40px;height:40px;border-radius:50%;border:2px solid var(--border-color);
+  background:#fff;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;
+  justify-content:center;transition:.2s;
+}
+.icon-btn:hover{border-color:var(--primary);transform:scale(1.08);}
+
+.title{font-size:2.2rem;font-weight:900;color:var(--primary);margin-bottom:10px;}
+.subtitle{font-size:1.2rem;color:var(--text-muted);margin-bottom:30px;}
+
+.credit-badge{
+  margin-top:35px;padding:12px 25px;background:#f0f9ff;border:2px dashed var(--primary);
+  color:var(--primary-hover);border-radius:50px;font-size:1.2rem;font-weight:900;
+  display:flex;align-items:center;gap:10px;box-shadow:0 4px 10px rgba(2,132,199,.1);
+  transition:.3s;
+}
+
+.level-buttons{display:flex;flex-direction:column;gap:15px;width:100%;max-width:460px;}
+.btn-level{
+  padding:16px 24px;border:none;border-radius:16px;font-size:1.25rem;font-weight:700;
+  color:#fff;cursor:pointer;transition:.3s;box-shadow:0 4px 15px rgba(0,0,0,.1);
+  display:flex;align-items:center;justify-content:center;gap:10px;position:relative;
+}
+.btn-easy{background:var(--easy);} .btn-easy:hover{background:var(--easy-hover);transform:translateY(-3px);}
+.btn-medium{background:var(--medium);} .btn-medium:hover{background:var(--medium-hover);transform:translateY(-3px);}
+.btn-hard{background:var(--hard);} .btn-hard:hover{background:var(--hard-hover);transform:translateY(-3px);}
+.record-tag{
+  position:absolute;top:-8px;left:12px;background:#fbbf24;color:#78350f;font-size:.72rem;
+  font-weight:900;padding:3px 10px;border-radius:50px;box-shadow:0 2px 6px rgba(0,0,0,.15);
+}
+
+.game-header{
+  width:100%;display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:15px;padding-bottom:12px;border-bottom:2px dashed var(--border-color);
+  gap:10px;flex-wrap:wrap;
+}
+.level-badge{color:#fff;padding:8px 18px;border-radius:20px;font-weight:700;font-size:1.05rem;box-shadow:0 4px 10px rgba(0,0,0,.1);}
+.score-box{
+  font-size:1.05rem;font-weight:700;color:var(--primary);background:#f0f9ff;
+  padding:8px 15px;border-radius:12px;border:1px solid #e0f2fe;display:flex;gap:12px;align-items:center;
+}
+.score-box .time-chip{color:#7c3aed;}
+
+.progress-track{width:100%;height:10px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin-bottom:22px;}
+.progress-fill{
+  height:100%;width:0%;border-radius:20px;
+  background:linear-gradient(90deg,#22c55e,#0284c7,#6366f1);
+  transition:width .45s cubic-bezier(.22,1,.36,1);
+}
+
+.math-text,bdi{
+  font-family:Arial,sans-serif;font-size:1.1em;color:var(--primary-hover);font-weight:bold;
+  direction:ltr;unicode-bidi:isolate;display:inline-block;margin:0 3px;
+}
+.question-text{
+  font-size:1.5rem;font-weight:700;line-height:1.6;margin-bottom:28px;
+  color:var(--text-main);width:100%;text-align:right;
+}
+.options-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;width:100%;}
+.option-btn{
+  background:#fff;border:2px solid var(--border-color);color:var(--text-main);
+  padding:16px;border-radius:16px;font-size:1.05rem;font-weight:700;cursor:pointer;
+  transition:.2s;text-align:right;display:flex;align-items:center;
+  box-shadow:0 4px 6px rgba(0,0,0,.02);gap:8px;
+}
+.option-btn .key-hint{
+  background:#e0f2fe;color:var(--primary-hover);border-radius:6px;font-size:.8rem;
+  padding:2px 8px;font-weight:900;flex-shrink:0;
+}
+.option-btn:hover:not(:disabled){background:#f0f9ff;border-color:var(--primary);transform:translateY(-2px);}
+.option-btn.correct{background:var(--correct-bg);border-color:var(--correct-border);color:var(--correct-text);}
+.option-btn.wrong{background:var(--wrong-bg);border-color:var(--wrong-border);color:var(--wrong-text);}
+.option-btn:disabled{cursor:not-allowed;opacity:.85;}
+
+.btn-outline{
+  margin-top:25px;padding:12px 24px;background:transparent;border:2px solid var(--primary);
+  color:var(--primary);border-radius:12px;font-weight:700;cursor:pointer;transition:.3s;
+  text-decoration: none; display: inline-block;
+}
+.btn-outline:hover{background:var(--primary);color:#fff;}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:25px;}
+
+.result-icon{font-size:5rem;margin-bottom:15px;}
+.stars-row{font-size:2.4rem;letter-spacing:8px;margin:10px 0 5px;color:#fbbf24;}
+.record-banner{
+  background:#fef3c7;color:#92400e;font-weight:900;padding:8px 18px;border-radius:50px;
+  margin:10px 0;display:inline-block;
+}
+
+.review-list{width:100%;max-height:52vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:4px;}
+.review-item{
+  background:#f8fafc;border-right:5px solid #ef4444;border-radius:12px;
+  padding:14px 16px;text-align:right;
+}
+.review-item .r-q{font-weight:700;margin-bottom:8px;line-height:1.6;}
+.review-item .r-ans{margin:4px 0;font-size:.95rem;}
+.review-item .r-wrong{color:var(--wrong-text);font-weight:700;}
+.review-item .r-right{color:var(--correct-text);font-weight:700;}
+
+@media (max-width:600px){
+  .options-grid{grid-template-columns:1fr;}
+  .card{padding:22px;}
+  .question-text{font-size:1.15rem;}
+  .game-header{flex-direction:column;align-items:stretch;}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card">
+
+    <div class="card-top-bar">
+      <button class="icon-btn" id="sound-btn" onclick="toggleSound()" title="كتم/تشغيل الصوت">🔊</button>
+    </div>
+
+    <!-- ===== شاشة البداية ===== -->
+    <div class="screen active" id="start-screen">
+      <div style="font-size:4rem;margin-bottom:15px;">📘</div>
+      <h1 class="title">بنك أسئلة الرياضيات (الوحدة 5)</h1>
+      <p class="subtitle">يحتوي كل مستوى على 15 سؤالاً شاملاً لجميع الدروس</p>
+
+      <div class="level-buttons">
+        <button class="btn-level btn-easy" onclick="startGame('easy')" id="btn-easy">
+          <span>🟢</span> المستوى الأول (أسئلة سهلة)
+        </button>
+        <button class="btn-level btn-medium" onclick="startGame('medium')" id="btn-medium">
+          <span>🟡</span> المستوى الثاني (أسئلة متوسطة)
+        </button>
+        <button class="btn-level btn-hard" onclick="startGame('hard')" id="btn-hard">
+          <span>🔴</span> المستوى الثالث (أسئلة صعبة)
+        </button>
+      </div>
+
+      <a href="../index.html" class="btn-outline" style="margin-top: 20px;">🔙 العودة للمنصة الرئيسية</a>
+
+      <div class="credit-badge">
+        <span>👩‍🏫</span> إعداد الأستاذة / شهد البرطي
+      </div>
+    </div>
+
+    <!-- ===== شاشة اللعب ===== -->
+    <div class="screen" id="game-screen">
+      <div class="game-header">
+        <div class="level-badge" id="current-level-badge">المستوى</div>
+        <div class="score-box">
+          <span>السؤال: <span id="q-counter">1/15</span></span>
+          <span>|</span>
+          <span>النقاط: <span id="score">0</span></span>
+          <span class="time-chip">⏱ <span id="timer">00:00</span></span>
+        </div>
+      </div>
+
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+      <div class="question-text" id="question-text">جاري التحميل...</div>
+      <div class="options-grid" id="options-grid"></div>
+
+      <button class="btn-outline" onclick="returnToMenu()">🏠 إنهاء الاختبار والعودة لقائمة المستويات</button>
+    </div>
+
+    <!-- ===== شاشة النتيجة ===== -->
+    <div class="screen" id="result-screen">
+      <div class="result-icon" id="result-icon">🏆</div>
+      <div class="stars-row" id="stars-row">⭐⭐⭐</div>
+      <h1 class="title" id="result-title">انتهى الاختبار!</h1>
+      <p class="subtitle" id="result-message" style="font-size:1.3rem;">لقد أكملت المستوى بنجاح.</p>
+      <div class="score-box" style="font-size:1.5rem;margin:18px 0;border:none;background:#e0f2fe;flex-direction:column;gap:4px;">
+        <div>النتيجة: <span id="final-score">0</span> / 15</div>
+        <div style="font-size:1rem;color:#7c3aed;">⏱ الزمن: <span id="final-time">00:00</span></div>
+      </div>
+      <div id="record-container"></div>
+
+      <div class="btn-row">
+        <button class="btn-level btn-easy" style="padding:12px 26px;" onclick="restartSameLevel()">🔄 أعد نفس المستوى</button>
+        <button class="btn-outline" onclick="showReview()" id="review-btn">📋 مراجعة الأخطاء</button>
+        <button class="btn-outline" onclick="returnToMenu()">🏠 قائمة المستويات</button>
+      </div>
+    </div>
+
+    <!-- ===== شاشة المراجعة ===== -->
+    <div class="screen" id="review-screen">
+      <h1 class="title">📋 مراجعة الأخطاء</h1>
+      <p class="subtitle" style="margin-bottom:15px;">راجع الأسئلة التي أخطأت فيها لتتعلم منها</p>
+      <div class="review-list" id="review-list"></div>
+      <div class="btn-row">
+        <button class="btn-outline" onclick="showScreen('result-screen')">↩ رجوع للنتيجة</button>
+        <button class="btn-outline" onclick="returnToMenu()">🏠 قائمة المستويات</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* دوال التنقل الأساسية المبسطة بدون حظر الرجوع */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function returnToMenu(){
+  stopTimer();
+  showScreen('start-screen');
+  renderBestRecords();
+}
+
+/* الصوت */
+let audioCtx = null;
+let soundMuted = false;
+function getAudioCtx(){
+  if(!audioCtx){
+    try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+    catch(e){ return null; }
+  }
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function toggleSound(){
+  soundMuted = !soundMuted;
+  document.getElementById('sound-btn').textContent = soundMuted ? '🔇' : '🔊';
+}
+function playSound(isCorrect){
+  if(soundMuted) return;
+  const ctx = getAudioCtx(); if(!ctx) return;
+  try{
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    if(isCorrect){
+      osc.type='sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1046.5, ctx.currentTime+.1);
+      gain.gain.setValueAtTime(.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.01, ctx.currentTime+.3);
+      osc.start(); osc.stop(ctx.currentTime+.3);
+    } else {
+      osc.type='sawtooth';
+      osc.frequency.setValueAtTime(150, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime+.2);
+      gain.gain.setValueAtTime(.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.01, ctx.currentTime+.3);
+      osc.start(); osc.stop(ctx.currentTime+.3);
+    }
+  }catch(e){}
+}
+
+/* ============================================================
+   بيانات الاختبار
+============================================================ */
+const quizData = {
+  easy: {
+    title:"المستوى الأول: الأسئلة السهلة",
+    color:"var(--easy)",
+    questions:[
+      { q:"المستقيم المار بالنقطتين <bdi>أ(٢ ، ٥)</bdi> و <bdi>ب(٧ ، ٥)</bdi> يوازي محور:", options:["السينات","الصادات","نقطة الأصل","لا يوازي أياً منهما"], answer:0 },
+      { q:"المستقيم المار بالنقطتين <bdi>ج(٣ ، -١)</bdi> و <bdi>د(٣ ، ٤)</bdi> يوازي محور:", options:["الصادات","السينات","المستوى","محور التناظر"], answer:0 },
+      { q:"البعد بين النقطتين <bdi>أ(١ ، ٣)</bdi> و <bdi>ب(٥ ، ٣)</bdi> يساوي:", options:["<bdi>٤</bdi> وحدات طول","<bdi>٥</bdi> وحدات","<bdi>٣</bdi> وحدات","<bdi>٨</bdi> وحدات"], answer:0 },
+      { q:"البعد بين نقطتين على مستقيم يوازي محور الصادات يحسب من العلاقة:", options:["<bdi>| ص٢ - ص١ |</bdi>","<bdi>| س٢ - س١ |</bdi>","<bdi>س٢ + س١</bdi>","<bdi>ص٢ × ص١</bdi>"], answer:0 },
+      { q:"البعد بين نقطتين على مستقيم يوازي محور السينات يحسب من العلاقة:", options:["<bdi>| س٢ - س١ |</bdi>","<bdi>| ص٢ - ص١ |</bdi>","<bdi>س + ص</bdi>","<bdi>س / ص</bdi>"], answer:0 },
+      { q:"إحداثي نقطة المنتصف للقطعة المستقيمة بين <bdi>أ(س١ ، ص)</bdi> و <bdi>ب(س٢ ، ص)</bdi> هو:", options:["<bdi>( (س١ + س٢) / ٢ ، ص )</bdi>","<bdi>( س ، (ص١ + ص٢) / ٢ )</bdi>","<bdi>( س١ - س٢ ، ص )</bdi>","<bdi>( س١ ، ص٢ )</bdi>"], answer:0 },
+      { q:"إحداثي منتصف القطعة المستقيمة الواصلة بين <bdi>أ(٢ ، ٤)</bdi> و <bdi>ب(٦ ، ٤)</bdi> هو:", options:["<bdi>( ٤ ، ٤ )</bdi>","<bdi>( ٨ ، ٤ )</bdi>","<bdi>( ٣ ، ٤ )</bdi>","<bdi>( ٤ ، ٨ )</bdi>"], answer:0 },
+      { q:"إحداثي منتصف القطعة الواصلة بين <bdi>ج(٣ ، ١)</bdi> و <bdi>د(٣ ، ٧)</bdi> هو:", options:["<bdi>( ٣ ، ٤ )</bdi>","<bdi>( ٣ ، ٨ )</bdi>","<bdi>( ٦ ، ٤ )</bdi>","<bdi>( ٣ ، ٣ )</bdi>"], answer:0 },
+      { q:"إذا كانت النقطة <bdi>م(٣ ، ٥)</bdi> هي منتصف أ ب، فإن أ و ب و م تقع جميعها على مستقيم:", options:["واحد","منحني","عمودي على نفسه","دائري"], answer:0 },
+      { q:"إحداثي منتصف المسافة بين النقطتين <bdi>(٠ ، ٠)</bdi> و <bdi>(٤ ، ٠)</bdi> هو:", options:["<bdi>( ٢ ، ٠ )</bdi>","<bdi>( ٠ ، ٢ )</bdi>","<bdi>( ٤ ، ٠ )</bdi>","<bdi>( ١ ، ٠ )</bdi>"], answer:0 },
+      { q:"التحويل الهندسي الذي ينقل كل نقطة في المستوى مسافة معينة في اتجاه معين يسمى:", options:["الانسحاب","الدوران","الانعكاس","التكبير"], answer:0 },
+      { q:"صورة النقطة <bdi>أ(٢ ، ٣)</bdi> بالانسحاب وفق القاعدة: <bdi>( س + ٣ ، ص )</bdi> هي:", options:["<bdi>( ٥ ، ٣ )</bdi>","<bdi>( ٥ ، ٦ )</bdi>","<bdi>( ٢ ، ٦ )</bdi>","<bdi>( -١ ، ٣ )</bdi>"], answer:0 },
+      { q:"صورة النقطة <bdi>ب(٤ ، ١)</bdi> بالانسحاب <bdi>٣</bdi> وحدات في الاتجاه الموجب لمحور الصادات هي:", options:["<bdi>( ٤ ، ٤ )</bdi>","<bdi>( ٧ ، ١ )</bdi>","<bdi>( ٤ ، -٢ )</bdi>","<bdi>( ١ ، ٤ )</bdi>"], answer:0 },
+      { q:"الانسحاب وفق القاعدة: <bdi>( س - ٤ ، ص )</bdi> يعني انسحاباً بمقدار <bdi>٤</bdi> وحدات في الاتجاه:", options:["السالب لمحور السينات (يساراً)","الموجب لمحور السينات","الموجب لمحور الصادات","السالب لمحور الصادات"], answer:0 },
+      { q:"الانسحاب يحافظ على:", options:["أطوال القطع المستقيمة وقياسات الزوايا والمساحة","الأطوال فقط","الزوايا فقط","الاتجاه فقط دون المساحة"], answer:0 }
+    ]
+  },
+  medium: {
+    title:"المستوى الثاني: الأسئلة المتوسطة",
+    color:"var(--medium)",
+    questions:[
+      { q:"البعد بين النقطتين <bdi>أ(-٢ ، ٤)</bdi> و <bdi>ب(٥ ، ٤)</bdi> يساوي:", options:["<bdi>٧</bdi> وحدات طول","<bdi>٣</bdi> وحدات","<bdi>-٧</bdi> وحدات","<bdi>٩</bdi> وحدات"], answer:0 },
+      { q:"البعد بين النقطتين <bdi>ج(٢ ، -٣)</bdi> و <bdi>د(٢ ، ٥)</bdi> يساوي:", options:["<bdi>٨</bdi> وحدات طول","<bdi>٢</bdi> وحدة","<bdi>-٨</bdi> وحدات","<bdi>١٥</bdi> وحدة"], answer:0 },
+      { q:"إذا كان المستقيم أ ب يوازي محور السينات، وكانت <bdi>أ(٣ ، -٢)</bdi> و <bdi>ب(س ، ص)</bdi>، فإن ص تساوي حتماً:", options:["<bdi>-٢</bdi>","<bdi>٣</bdi>","<bdi>٠</bdi>","أي قيمة"], answer:0 },
+      { q:"إذا كان البعد بين النقطتين <bdi>أ(١ ، ٢)</bdi> و <bdi>ب(س ، ٢)</bdi> يساوي <bdi>٥</bdi> وحدات طول، وكانت س تقع يمين أ، فإن س = :", options:["<bdi>٦</bdi>","<bdi>٤</bdi>","<bdi>-٤</bdi>","<bdi>٧</bdi>"], answer:0 },
+      { q:"النقطتان <bdi>أ(٠ ، ٤)</bdi> و <bdi>ب(٠ ، -٣)</bdi> تقعان على محور:", options:["الصادات","السينات","المستقيم <bdi>ص = س</bdi>","المستوى الخالي"], answer:0 },
+      { q:"إحداثي منتصف القطعة الواصلة بين <bdi>أ(-٢ ، ٣)</bdi> و <bdi>ب(٦ ، ٣)</bdi> هو:", options:["<bdi>( ٢ ، ٣ )</bdi>","<bdi>( ٤ ، ٣ )</bdi>","<bdi>( -٤ ، ٣ )</bdi>","<bdi>( ٢ ، ٦ )</bdi>"], answer:0 },
+      { q:"إحداثي منتصف القطعة الواصلة بين <bdi>ج(٥ ، -٤)</bdi> و <bdi>د(٥ , ٢)</bdi> هو:", options:["<bdi>( ٥ ، -١ )</bdi>","<bdi>( ٥ ، -٢ )</bdi>","<bdi>( ٥ ، ١ )</bdi>","<bdi>( ٠ ، -١ )</bdi>"], answer:0 },
+      { q:"إذا كانت <bdi>م(٤ ، ٢)</bdi> هي منتصف أ ب، وكانت <bdi>أ(١ ، ٢)</bdi>، فإن إحداثي النقطة ب هو:", options:["<bdi>( ٧ ، ٢ )</bdi>","<bdi>( ٥ ، ٢ )</bdi>","<bdi>( ٣ ، ٢ )</bdi>","<bdi>( ٦ ، ٢ )</bdi>"], answer:0 },
+      { q:"إذا كانت النقطة <bdi>ن(٣ ، ص)</bdi> منتصف القطعة بين <bdi>(٣ ، -٢)</bdi> و <bdi>(٣ ، ٦)</bdi>، فإن ص = :", options:["<bdi>٢</bdi>","<bdi>٤</bdi>","<bdi>-٤</bdi>","<bdi>٨</bdi>"], answer:0 },
+      { q:"في المثلث القائم <bdi>أ(١ ، ٥)</bdi> و <bdi>ب(١ ، ١)</bdi> و <bdi>ج(٤ ، ١)</bdi>، منتصف ب ج الموازي للسينات هو:", options:["<bdi>( ٢,٥ ، ١ )</bdi>","<bdi>( ١ ، ٣ )</bdi>","<bdi>( ٥ ، ٢ )</bdi>","<bdi>( ٢ ، ٢ )</bdi>"], answer:0 },
+      { q:"صورة النقطة <bdi>أ(٣ ، -٢)</bdi> بالانسحاب: <bdi>( س + ٢ ، ص + ٥ )</bdi> هي:", options:["<bdi>( ٥ ، ٣ )</bdi>","<bdi>( ٥ ، -٧ )</bdi>","<bdi>( ١ ، ٣ )</bdi>","<bdi>( ٦ ، -١٠ )</bdi>"], answer:0 },
+      { q:"صورة النقطة <bdi>(-١ ، ٤)</bdi> بانسحاب مقداره وحدتان يساراً و ٣ وحدات لأسفل هي:", options:["<bdi>( -٣ ، ١ )</bdi>","<bdi>( ١ ، ٧ )</bdi>","<bdi>( -٣ ، ٧ )</bdi>","<bdi>( ١ ، ١ )</bdi>"], answer:0 },
+      { q:"إذا كانت صورة النقطة <bdi>أ(٢ ، ٥)</bdi> بالانسحاب هي <bdi>أ'(٦ ، ٥)</bdi>، فإن مقدار الانسحاب واتجاهه هو:", options:["<bdi>٤</bdi> وحدات في الاتجاه الموجب لمحور السينات","<bdi>٤</bdi> وحدات في الاتجاه السالب لمحور السينات","<bdi>٤</bdi> وحدات لمحور الصادات","وحدتان للسينات"], answer:0 },
+      { q:"صورة النقطة <bdi>(٠ ، ٠)</bdi> بالانسحاب <bdi>( س - ٣ ، ص + ٤ )</bdi> هي:", options:["<bdi>( -٣ ، ٤ )</bdi>","<bdi>( ٣ ، -٤ )</bdi>","<bdi>( ٠ ، ٤ )</bdi>","<bdi>( -٣ ، ٠ )</bdi>"], answer:0 },
+      { q:"إذا كان طول القطعة المستقيمة أ ب يساوي <bdi>٦ سم</bdi>، فإن طول صورتها أ' ب' بالانسحاب يساوي:", options:["<bdi>٦ سم</bdi>","<bdi>١٢ سم</bdi>","<bdi>٣ سم</bdi>","<bdi>٨ سم</bdi>"], answer:0 }
+    ]
+  },
+  hard: {
+    title:"المستوى الثالث: الأسئلة الصعبة",
+    color:"var(--hard)",
+    questions:[
+      { q:"إذا كانت <bdi>أ(-٣ ، ٢)</bdi> و <bdi>ب(٥ ، ٢)</bdi> و <bdi>ج(٥ ، -٤)</bdi>، فإن الشكل المثلث أ ب ج قائم الزاوية في:", options:["ب (لأن أ ب يوازي السينات و ب ج يوازي الصادات)","أ","ج","ليس قائماً"], answer:0 },
+      { q:"في المستوى الإحداثي، مساحة المستطيل الذي رؤوسه <bdi>(١ ، ١)</bdi> ، <bdi>(٥ ، ١)</bdi> ، <bdi>(٥ ، ٤)</bdi> ، <bdi>(١ ، ٤)</bdi> تساوي:", options:["<bdi>١٢</bdi> وحدة مربعة","<bdi>١٦</bdi> وحدة مربعة","<bdi>٩</bdi> وحدات مربعة","<bdi>٢٠</bdi> وحدة مربعة"], answer:0 },
+      { q:"إذا كانت النقطة <bdi>ك(٢ ، ص)</bdi> تبعد عن <bdi>ل(٢ ، -١)</bdi> مسافة قدرها <bdi>٦</bdi> وحدات طول وكانت ك أعلى ل، فإن ص = :", options:["<bdi>٥</bdi>","<bdi>-٧</bdi>","<bdi>٧</bdi>","<bdi>٦</bdi>"], answer:0 },
+      { q:"محيط المربع الذي رؤوسه <bdi>(٠ ، ٠)</bdi> ، <bdi>(٣ ، ٠)</bdi> ، <bdi>(٣ ، ٣)</bdi> ، <bdi>(٠ ، ٣)</bdi> يساوي:", options:["<bdi>١٢</bdi> وحدة طول","<bdi>٩</bdi> وحدات","<bdi>٦</bdi> وحدات","<bdi>١٥</bdi> وحدة"], answer:0 },
+      { q:"إذا كانت النقطتان <bdi>أ(س ، ٣)</bdi> و <bdi>ب(-١ ، ٣)</bdi>، والبعد بينهما يساوي <bdi>٤</bdi> وحدات، وكانت س < -١، فإن س تساوي:", options:["<bdi>-٥</bdi>","<bdi>٣</bdi>","<bdi>-٣</bdi>","<bdi>٥</bdi>"], answer:0 },
+      { q:"إذا كانت <bdi>م(-١ ، ٤)</bdi> هي منتصف أ ب، وكانت <bdi>ب(٥ ، ٤)</bdi>، فإن إحداثي النقطة أ هو:", options:["<bdi>( -٧ ، ٤ )</bdi>","<bdi>( -٦ , ٤ )</bdi>","<bdi>( ٣ ، ٤ )</bdi>","<bdi>( -٣ ، ٤ )</bdi>"], answer:0 },
+      { q:"قطعة مستقيمة أ ب طولها <bdi>٨</bdi> وحدات وتوازي محور الصادات، ونقطة منتصفها هي <bdi>م(٢ ، ٣)</bdi>، فإن إحداثيي طرفيها يمكن أن يكونا:", options:["<bdi>أ(٢ ، ٧)</bdi> و <bdi>ب(٢ ، -١)</bdi>","<bdi>أ(٢ ، ٤)</bdi> و <bdi>ب(٢ ، -٤)</bdi>","<bdi>أ(٦ ، ٣)</bdi> و <bdi>ب(-٢ ، ٣)</bdi>","<bdi>أ(٢ ، ٥)</bdi> و <bdi>ب(٢ ، ١)</bdi>"], answer:0 },
+      { q:"إذا كانت <bdi>أ(-٣ ، ٢)</bdi> و <bdi>ب(٥ ، ٢)</bdi>، فإن النقطة التي تقسم أ ب بنسبة ١ : ١ هي:", options:["<bdi>( ١ ، ٢ )</bdi>","<bdi>( ٢ ، ٢ )</bdi>","<bdi>( ٠ ، ٢ )</bdi>","<bdi>( -١ ، ٢ )</bdi>"], answer:0 },
+      { q:"إذا كانت <bdi>ج(س ، -٥)</bdi> و <bdi>د(س ، ٣)</bdi>، وكانت نقطة منتصف ج د هي <bdi>ن(٤ ، ص)</bdi>، فإن (س ، ص) هما:", options:["<bdi>( ٤ ، -١ )</bdi>","<bdi>( ٤ ، -٢ )</bdi>","<bdi>( -١ ، ٤ )</bdi>","<bdi>( ٠ ، -١ )</bdi>"], answer:0 },
+      { q:"في المعين أ ب ج د، نقطة تقاطع القطرين هي منتصف كل قطر، فإذا كان القطر أ ج يوازي محور السينات وطرفاه <bdi>(-٢ ، ٣)</bdi> و <bdi>(٤ ، ٣)</bdi>، فإن إحداثي مركز المعين هو:", options:["<bdi>( ١ ، ٣ )</bdi>","<bdi>( ٢ ، ٣ )</bdi>","<bdi>( ٣ ، ٣ )</bdi>","<bdi>( ١ ، ٠ )</bdi>"], answer:0 },
+      { q:"إذا كانت صورة النقطة ب بالانسحاب <bdi>( س + ٤ ، ص - ٢ )</bdi> هي <bdi>ب'(١ ، ٣)</bdi>، فإن إحداثي النقطة الأصلية ب هو:", options:["<bdi>( -٣ ، ٥ )</bdi>","<bdi>( ٥ ، ١ )</bdi>","<bdi>( -٣ ، 1 )</bdi>","<bdi>( ٥ ، ٥ )</bdi>"], answer:0 },
+      { q:"مثلث مساحته <bdi>١٥ سم²</bdi>، أجري له انسحاب بمقدار <bdi>٥</bdi> وحدات يميناً و <bdi>٤</bdi> وحدات لأعلى، فإن مساحة صورته تساوي:", options:["<bdi>١٥ سم²</bdi> (لأن الانسحاب يحافظ على المساحة)","<bdi>٣٠ سم²</bdi>","<bdi>٢٠ سم²</bdi>","<bdi>٦٠ سم²</bdi>"], answer:0 },
+      { q:"انسحاب ينقل النقطة <bdi>(٢ ، ٣)</bdi> إلى <bdi>(٥ ، ٧)</bdi>، فإن نفس هذا الانسحاب ينقل النقطة <bdi>(-١ ، ٢)</bdi> إلى:", options:["<bdi>( ٢ ، ٦ )</bdi>","<bdi>( ٣ ، ٤ )</bdi>","<bdi>( ٤ ، ٥ )</bdi>","<bdi>( -٤ ، -٢ )</bdi>"], answer:0 },
+      { q:"صورة المربع الذي رؤوسه أحدها النقطة <bdi>أ(١ ، ٢)</bdi> بانسحاب مقداره <bdi>( س - ٣ ، ص - ٤ )</bdi> تصبح أ' إحداثياتها:", options:["<bdi>( -٢ ، -٢ )</bdi>","<bdi>( ٤ ، ٦ )</bdi>","<bdi>( -٢ ، ٦ )</bdi>","<bdi>( ٤ ، -٢ )</bdi>"], answer:0 },
+      { q:"إذا أجري لنقطة انسحاب أول مقداره <bdi>( س + ٢ ، ص )</bdi> ثم تبعه انسحاب ثانٍ مقداره <bdi>( س + ٣ ، ص )</bdi>، فإن هذا يكافئ انسحاباً واحداً مقداره:", options:["<bdi>( س + ٥ ، ص )</bdi>","<bdi>( س + ٦ ، ص )</bdi>","<bdi>( س + ١ ، ص )</bdi>","<bdi>( س + ٥ ، ص + ٥ )</bdi>"], answer:0 }
+    ]
+  }
+};
+
+/* دوال اللعبة */
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function formatTime(sec){
+  const m = String(Math.floor(sec/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+let currentLevelKey = '';
+let currentQuestions = [];
+let currentQuestionIndex = 0;
+let score = 0;
+let isAnswering = false;
+let wrongAnswers = [];
+let timerInterval = null;
+let elapsedSeconds = 0;
+let gameStartTime = 0;
+
+function renderBestRecords(){
+  ['easy','medium','hard'].forEach(level => {
+    const btn = document.getElementById('btn-' + level);
+    if(!btn) return;
+    const old = btn.querySelector('.record-tag');
+    if(old) old.remove();
+    const best = localStorage.getItem('bestScore_' + level + '_unit5');
+    if(best !== null){
+      const tag = document.createElement('span');
+      tag.className = 'record-tag';
+      tag.textContent = '🏅 أفضل: ' + best + '/15';
+      btn.appendChild(tag);
+    }
+  });
+}
+
+function prepareQuestions(level){
+  return shuffle(quizData[level].questions).map(q => {
+    const opts = q.options.map((text,i)=>({ text, correct: i===q.answer }));
+    return { q: q.q, options: shuffle(opts) };
+  });
+}
+
+function startGame(level){
+  if(getAudioCtx()) {}
+  currentLevelKey = level;
+  currentQuestions = prepareQuestions(level);
+  currentQuestionIndex = 0;
+  score = 0;
+  wrongAnswers = [];
+  elapsedSeconds = 0;
+  isAnswering = false;
+
+  document.getElementById('score').innerText = '0';
+  document.getElementById('timer').innerText = '00:00';
+  document.getElementById('progress-fill').style.width = '0%';
+
+  const badge = document.getElementById('current-level-badge');
+  badge.innerText = quizData[level].title;
+  badge.style.backgroundColor = quizData[level].color;
+
+  startTimer();
+  showScreen('game-screen');
+  loadQuestion();
+}
+
+function startTimer(){
+  stopTimer();
+  gameStartTime = Date.now();
+  timerInterval = setInterval(()=>{
+    elapsedSeconds = Math.floor((Date.now() - gameStartTime)/1000);
+    document.getElementById('timer').innerText = formatTime(elapsedSeconds);
+  }, 500);
+}
+
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+}
+
+function loadQuestion(){
+  isAnswering = false;
+  const currentQ = currentQuestions[currentQuestionIndex];
+
+  document.getElementById('q-counter').innerText = `${currentQuestionIndex+1}/${currentQuestions.length}`;
+  document.getElementById('question-text').innerHTML = currentQ.q;
+
+  const pct = (currentQuestionIndex / currentQuestions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const letters = ['أ','ب','ج','د'];
+
+  currentQ.options.forEach((opt, index)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="key-hint">${letters[index]}</span> <span>${opt.text}</span>`;
+    btn.onclick = () => checkAnswer(index, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function checkAnswer(selectedIndex, btnElement){
+  if(isAnswering) return;
+  isAnswering = true;
+
+  const currentQ = currentQuestions[currentQuestionIndex];
+  const allButtons = document.querySelectorAll('.option-btn');
+  allButtons.forEach(b => b.disabled = true);
+
+  const correctIndex = currentQ.options.findIndex(o => o.correct);
+
+  if(selectedIndex === correctIndex){
+    btnElement.classList.add('correct');
+    score++;
+    document.getElementById('score').innerText = score;
+    playSound(true);
+  } else {
+    btnElement.classList.add('wrong');
+    allButtons[correctIndex].classList.add('correct');
+    playSound(false);
+
+    const letters = ['أ','ب','ج','د'];
+    wrongAnswers.push({
+      q: currentQ.q,
+      letter: letters[selectedIndex],
+      userAnswer: currentQ.options[selectedIndex].text,
+      correctLetter: letters[correctIndex],
+      correctAnswer: currentQ.options[correctIndex].text
+    });
+  }
+
+  const pctAfter = ((currentQuestionIndex+1) / currentQuestions.length) * 100;
+  document.getElementById('progress-fill').style.width = pctAfter + '%';
+
+  setTimeout(()=>{
+    currentQuestionIndex++;
+    if(currentQuestionIndex < currentQuestions.length){
+      loadQuestion();
+    } else {
+      endGame();
+    }
+  }, 1100);
+}
+
+function endGame(){
+  stopTimer();
+  showScreen('result-screen');
+
+  const total = currentQuestions.length;
+  const pct = score / total;
+
+  document.getElementById('final-score').innerText = score;
+  document.getElementById('final-time').innerText = formatTime(elapsedSeconds);
+
+  const stars = document.getElementById('stars-row');
+  const recordBox = document.getElementById('record-container');
+  recordBox.innerHTML = '';
+
+  let starCount = (pct === 1) ? 3 : (pct >= 0.7) ? 2 : (pct >= 0.4) ? 1 : 0;
+  stars.innerText = '⭐'.repeat(starCount) + '☆'.repeat(3 - starCount);
+
+  document.getElementById('review-btn').style.display = wrongAnswers.length ? 'inline-block' : 'none';
+
+  const bestKey = 'bestScore_' + currentLevelKey + '_unit5';
+  const prevBest = parseInt(localStorage.getItem(bestKey) || '0', 10);
+  if(score > prevBest){
+    localStorage.setItem(bestKey, score);
+    const banner = document.createElement('div');
+    banner.className = 'record-banner';
+    banner.textContent = '🎉 رقم قياسي جديد! 🎉';
+    recordBox.appendChild(banner);
+  } else if(prevBest > 0){
+    const info = document.createElement('div');
+    info.style.color = '#475569';
+    info.style.fontWeight = '700';
+    info.textContent = '🏅 أفضل نتيجة سابقة: ' + prevBest + '/' + total;
+    recordBox.appendChild(info);
+  }
+}
+
+function showReview(){
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  wrongAnswers.forEach((w, i)=>{
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    item.innerHTML = `<div class="r-q">${i+1}) ${w.q}</div>
+      <div class="r-ans">❌ إجابتك <b>(${w.letter})</b>: <span class="r-wrong">${w.userAnswer}</span></div>
+      <div class="r-ans">✅ الإجابة الصحيحة <b>(${w.correctLetter})</b>: <span class="r-right">${w.correctAnswer}</span></div>`;
+    list.appendChild(item);
+  });
+  showScreen('review-screen');
+}
+
+function restartSameLevel(){
+  if(currentLevelKey) startGame(currentLevelKey);
+}
+
+renderBestRecords();
+</script>
+</body>
+</html>

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تحدي الأعداد النسبية | منصة الأستاذة شهد</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-gradient-start:#e0f2fe; --bg-gradient-end:#bae6fd;
+  --card-bg:rgba(255,255,255,0.95);
+  --text-main:#0c4a6e; --text-muted:#475569;
+  --primary:#0284c7; --primary-hover:#0369a1;
+  --border-color:#cbd5e1;
+  --easy:#0ea5e9; --easy-hover:#0284c7;
+  --medium:#3b82f6; --medium-hover:#2563eb;
+  --hard:#6366f1; --hard-hover:#4f46e5;
+  --correct-bg:#d1fae5; --correct-border:#10b981; --correct-text:#047857;
+  --wrong-bg:#fee2e2; --wrong-border:#ef4444; --wrong-text:#b91c1c;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Tajawal',sans-serif;}
+body{
+  background:linear-gradient(135deg,var(--bg-gradient-start) 0%,var(--bg-gradient-end) 100%);
+  color:var(--text-main);min-height:100vh;display:flex;justify-content:center;
+  align-items:center;padding:20px;overflow-x:hidden;
+}
+.container{width:100%;max-width:820px;}
+.card{
+  background-color:var(--card-bg);border-radius:24px;padding:40px;
+  box-shadow:0 20px 40px -15px rgba(2,132,199,.2);
+  border:1px solid rgba(255,255,255,.5);backdrop-filter:blur(10px);
+  position:relative;overflow:hidden;
+}
+.screen{display:none;flex-direction:column;align-items:center;text-align:center;animation:fadeIn .5s ease;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+
+.card-top-bar{position:absolute;top:15px;left:15px;display:flex;gap:8px;z-index:5;}
+.icon-btn{
+  width:40px;height:40px;border-radius:50%;border:2px solid var(--border-color);
+  background:#fff;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;
+  justify-content:center;transition:.2s;
+}
+.icon-btn:hover{border-color:var(--primary);transform:scale(1.08);}
+
+.title{font-size:2.2rem;font-weight:900;color:var(--primary);margin-bottom:10px;}
+.subtitle{font-size:1.2rem;color:var(--text-muted);margin-bottom:30px;}
+
+.credit-badge{
+  margin-top:35px;padding:12px 25px;background:#f0f9ff;border:2px dashed var(--primary);
+  color:var(--primary-hover);border-radius:50px;font-size:1.2rem;font-weight:900;
+  display:flex;align-items:center;gap:10px;box-shadow:0 4px 10px rgba(2,132,199,.1);
+  transition:.3s;
+}
+
+.level-buttons{display:flex;flex-direction:column;gap:15px;width:100%;max-width:460px;}
+.btn-level{
+  padding:16px 24px;border:none;border-radius:16px;font-size:1.25rem;font-weight:700;
+  color:#fff;cursor:pointer;transition:.3s;box-shadow:0 4px 15px rgba(0,0,0,.1);
+  display:flex;align-items:center;justify-content:center;gap:10px;position:relative;
+}
+.btn-easy{background:var(--easy);} .btn-easy:hover{background:var(--easy-hover);transform:translateY(-3px);}
+.btn-medium{background:var(--medium);} .btn-medium:hover{background:var(--medium-hover);transform:translateY(-3px);}
+.btn-hard{background:var(--hard);} .btn-hard:hover{background:var(--hard-hover);transform:translateY(-3px);}
+.record-tag{
+  position:absolute;top:-8px;left:12px;background:#fbbf24;color:#78350f;font-size:.72rem;
+  font-weight:900;padding:3px 10px;border-radius:50px;box-shadow:0 2px 6px rgba(0,0,0,.15);
+}
+
+.game-header{
+  width:100%;display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:15px;padding-bottom:12px;border-bottom:2px dashed var(--border-color);
+  gap:10px;flex-wrap:wrap;
+}
+.level-badge{color:#fff;padding:8px 18px;border-radius:20px;font-weight:700;font-size:1.05rem;box-shadow:0 4px 10px rgba(0,0,0,.1);}
+.score-box{
+  font-size:1.05rem;font-weight:700;color:var(--primary);background:#f0f9ff;
+  padding:8px 15px;border-radius:12px;border:1px solid #e0f2fe;display:flex;gap:12px;align-items:center;
+}
+.score-box .time-chip{color:#7c3aed;}
+
+.progress-track{width:100%;height:10px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin-bottom:22px;}
+.progress-fill{
+  height:100%;width:0%;border-radius:20px;
+  background:linear-gradient(90deg,#22c55e,#0284c7,#6366f1);
+  transition:width .45s cubic-bezier(.22,1,.36,1);
+}
+
+.math-text,bdi{
+  font-family:Arial,sans-serif;font-size:1.1em;color:var(--primary-hover);font-weight:bold;
+  direction:ltr;unicode-bidi:isolate;display:inline-block;margin:0 3px;
+}
+.question-text{
+  font-size:1.5rem;font-weight:700;line-height:1.6;margin-bottom:28px;
+  color:var(--text-main);width:100%;text-align:right;
+}
+.options-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;width:100%;}
+.option-btn{
+  background:#fff;border:2px solid var(--border-color);color:var(--text-main);
+  padding:16px;border-radius:16px;font-size:1.05rem;font-weight:700;cursor:pointer;
+  transition:.2s;text-align:right;display:flex;align-items:center;
+  box-shadow:0 4px 6px rgba(0,0,0,.02);gap:8px;
+}
+.option-btn .key-hint{
+  background:#e0f2fe;color:var(--primary-hover);border-radius:6px;font-size:.8rem;
+  padding:2px 8px;font-weight:900;flex-shrink:0;
+}
+.option-btn:hover:not(:disabled){background:#f0f9ff;border-color:var(--primary);transform:translateY(-2px);}
+.option-btn.correct{background:var(--correct-bg);border-color:var(--correct-border);color:var(--correct-text);}
+.option-btn.wrong{background:var(--wrong-bg);border-color:var(--wrong-border);color:var(--wrong-text);}
+.option-btn:disabled{cursor:not-allowed;opacity:.85;}
+
+.btn-outline{
+  margin-top:25px;padding:12px 24px;background:transparent;border:2px solid var(--primary);
+  color:var(--primary);border-radius:12px;font-weight:700;cursor:pointer;transition:.3s;
+  text-decoration: none; display: inline-block;
+}
+.btn-outline:hover{background:var(--primary);color:#fff;}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:25px;}
+
+.result-icon{font-size:5rem;margin-bottom:15px;}
+.stars-row{font-size:2.4rem;letter-spacing:8px;margin:10px 0 5px;color:#fbbf24;}
+.record-banner{
+  background:#fef3c7;color:#92400e;font-weight:900;padding:8px 18px;border-radius:50px;
+  margin:10px 0;display:inline-block;
+}
+
+.review-list{width:100%;max-height:52vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:4px;}
+.review-item{
+  background:#f8fafc;border-right:5px solid #ef4444;border-radius:12px;
+  padding:14px 16px;text-align:right;
+}
+.review-item .r-q{font-weight:700;margin-bottom:8px;line-height:1.6;}
+.review-item .r-ans{margin:4px 0;font-size:.95rem;}
+.review-item .r-wrong{color:var(--wrong-text);font-weight:700;}
+.review-item .r-right{color:var(--correct-text);font-weight:700;}
+
+@media (max-width:600px){
+  .options-grid{grid-template-columns:1fr;}
+  .card{padding:22px;}
+  .question-text{font-size:1.15rem;}
+  .game-header{flex-direction:column;align-items:stretch;}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card">
+
+    <div class="card-top-bar">
+      <button class="icon-btn" id="sound-btn" onclick="toggleSound()" title="كتم/تشغيل الصوت">🔊</button>
+    </div>
+
+    <!-- ===== شاشة البداية ===== -->
+    <div class="screen active" id="start-screen">
+      <div style="font-size:4rem;margin-bottom:15px;">📘</div>
+      <h1 class="title">بنك أسئلة الرياضيات (الوحدة 2)</h1>
+      <p class="subtitle">يحتوي كل مستوى على 45 سؤالاً شاملاً لجميع الدروس</p>
+
+      <div class="level-buttons">
+        <button class="btn-level btn-easy" onclick="startGame('easy')" id="btn-easy">
+          <span>🟢</span> المستوى الأول (أسئلة سهلة)
+        </button>
+        <button class="btn-level btn-medium" onclick="startGame('medium')" id="btn-medium">
+          <span>🟡</span> المستوى الثاني (أسئلة متوسطة)
+        </button>
+        <button class="btn-level btn-hard" onclick="startGame('hard')" id="btn-hard">
+          <span>🔴</span> المستوى الثالث (أسئلة صعبة)
+        </button>
+      </div>
+
+      <!-- الزر الجديد للعودة للمنصة -->
+      <a href="../index.html" class="btn-outline" style="margin-top: 20px;">🔙 العودة للمنصة الرئيسية</a>
+
+      <div class="credit-badge">
+        <span>👩‍🏫</span> إعداد الأستاذة / شهد البرطي
+      </div>
+    </div>
+
+    <!-- ===== شاشة اللعب ===== -->
+    <div class="screen" id="game-screen">
+      <div class="game-header">
+        <div class="level-badge" id="current-level-badge">المستوى</div>
+        <div class="score-box">
+          <span>السؤال: <span id="q-counter">1/45</span></span>
+          <span>|</span>
+          <span>النقاط: <span id="score">0</span></span>
+          <span class="time-chip">⏱ <span id="timer">00:00</span></span>
+        </div>
+      </div>
+
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+      <div class="question-text" id="question-text">جاري التحميل...</div>
+      <div class="options-grid" id="options-grid"></div>
+
+      <button class="btn-outline" onclick="returnToMenu()">🏠 إنهاء الاختبار والعودة لقائمة المستويات</button>
+    </div>
+
+    <!-- ===== شاشة النتيجة ===== -->
+    <div class="screen" id="result-screen">
+      <div class="result-icon" id="result-icon">🏆</div>
+      <div class="stars-row" id="stars-row">⭐⭐⭐</div>
+      <h1 class="title" id="result-title">انتهى الاختبار!</h1>
+      <p class="subtitle" id="result-message" style="font-size:1.3rem;">لقد أكملت المستوى بنجاح.</p>
+      <div class="score-box" style="font-size:1.5rem;margin:18px 0;border:none;background:#e0f2fe;flex-direction:column;gap:4px;">
+        <div>النتيجة: <span id="final-score">0</span> / 45</div>
+        <div style="font-size:1rem;color:#7c3aed;">⏱ الزمن: <span id="final-time">00:00</span></div>
+      </div>
+      <div id="record-container"></div>
+
+      <div class="btn-row">
+        <button class="btn-level btn-easy" style="padding:12px 26px;" onclick="restartSameLevel()">🔄 أعد نفس المستوى</button>
+        <button class="btn-outline" onclick="showReview()" id="review-btn">📋 مراجعة الأخطاء</button>
+        <button class="btn-outline" onclick="returnToMenu()">🏠 قائمة المستويات</button>
+      </div>
+    </div>
+
+    <!-- ===== شاشة المراجعة ===== -->
+    <div class="screen" id="review-screen">
+      <h1 class="title">📋 مراجعة الأخطاء</h1>
+      <p class="subtitle" style="margin-bottom:15px;">راجع الأسئلة التي أخطأت فيها لتتعلم منها</p>
+      <div class="review-list" id="review-list"></div>
+      <div class="btn-row">
+        <button class="btn-outline" onclick="showScreen('result-screen')">↩ رجوع للنتيجة</button>
+        <button class="btn-outline" onclick="returnToMenu()">🏠 قائمة المستويات</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* دوال التنقل الأساسية المبسطة بدون حظر الرجوع */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function returnToMenu(){
+  stopTimer();
+  showScreen('start-screen');
+  renderBestRecords();
+}
+
+/* الصوت */
+let audioCtx = null;
+let soundMuted = false;
+function getAudioCtx(){
+  if(!audioCtx){
+    try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+    catch(e){ return null; }
+  }
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function toggleSound(){
+  soundMuted = !soundMuted;
+  document.getElementById('sound-btn').textContent = soundMuted ? '🔇' : '🔊';
+}
+function playSound(isCorrect){
+  if(soundMuted) return;
+  const ctx = getAudioCtx(); if(!ctx) return;
+  try{
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    if(isCorrect){
+      osc.type='sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1046.5, ctx.currentTime+.1);
+      gain.gain.setValueAtTime(.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.01, ctx.currentTime+.3);
+      osc.start(); osc.stop(ctx.currentTime+.3);
+    } else {
+      osc.type='sawtooth';
+      osc.frequency.setValueAtTime(150, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime+.2);
+      gain.gain.setValueAtTime(.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.01, ctx.currentTime+.3);
+      osc.start(); osc.stop(ctx.currentTime+.3);
+    }
+  }catch(e){}
+}
+
+/* ============================================================
+   بيانات الاختبار
+============================================================ */
+// ملاحظة: يمكنك لصق مصفوفة quizData بالكامل هنا (قمت بنسخها من ملفك كما هي)
+const quizData = {
+  easy: {
+    title:"المستوى الأول: الأسئلة السهلة",
+    color:"var(--easy)",
+    questions:[
+      { q:"العدد النسبي هو كل عدد يمكن كتابته على الصورة <bdi>أ/ب</bdi> حيث <bdi>أ ، ب</bdi> عدادان صحيحان و:", options:["<bdi>ب = ٠</bdi>","<bdi>ب ≠ ٠</bdi>","<bdi>أ = ٠</bdi> دائماً","<bdi>ب = ١</bdi> دائماً"], answer:1 },
+      { q:"أي من الأعداد التالية يمثل عدداً نسبياً؟", options:["<bdi>٥</bdi>","<bdi>٣/٤</bdi>","<bdi>-٢</bdi>","جميع ما سبق"], answer:3 },
+      { q:"العدد النسبي <bdi>٠ / ٥</bdi> يساوي:", options:["<bdi>٠</bdi>","<bdi>٥</bdi>","غير معرّف","<bdi>١</bdi>"], answer:0 },
+      { q:"أي من الأعداد التالية ليس عدداً نسبياً؟", options:["<bdi>٧</bdi>","<bdi>٠</bdi>","<bdi>٤ / ٠</bdi>","<bdi>-٣ / ٥</bdi>"], answer:2 },
+      { q:"كل عدد صحيح هو عدد نسبي مقامه يساوي:", options:["<bdi>٠</bdi>","<bdi>١</bdi>","<bdi>١٠</bdi>","<bdi>-١</bdi>"], answer:1 },
+      { q:"العدد النسبي <bdi>٣/٥</bdi> يقع على خط الأعداد:", options:["يمين الصفر","يسار الصفر","عند الصفر تماماً","بين <bdi>-١</bdi> و <bdi>-٢</bdi>"], answer:0 },
+      { q:"العدد النسبي <bdi>-٢/٣</bdi> يقع على خط الأعداد:", options:["يمين الصفر","يسار الصفر","عند الواحد","يمين الواحد"], answer:1 },
+      { q:"العدد النسبي <bdi>١/٢</bdi> يقع على خط الأعداد بين العددين الصحيحين:", options:["<bdi>٠</bdi> و <bdi>١</bdi>","<bdi>١</bdi> و <bdi>٢</bdi>","<bdi>-١</bdi> و <bdi>٠</bdi>","<bdi>٢</bdi> و <bdi>٣</bdi>"], answer:0 },
+      { q:"لتمثيل العدد النسبي <bdi>٣/٤</bdi>، نقسم المسافة بين <bdi>٠</bdi> و <bdi>١</bdi> إلى:", options:["٣ أجزاء متساوية","٤ أجزاء متساوية","٧ أجزاء متساوية","جزأين متساويين"], answer:1 },
+      { q:"العدد النسبي المقابل للعدد <bdi>٤/٥</bdi> بالنسبة للصفر على خط الأعداد هو:", options:["<bdi>٥/٤</bdi>","<bdi>-٤/٥</bdi>","<bdi>١</bdi>","<bdi>٠</bdi>"], answer:1 },
+      { q:"الكسر العادي <bdi>٣/٤</bdi> بصورة كسر عشري يساوي:", options:["<bdi>٠,٢٥</bdi>","<bdi>٠,٥</bdi>","<bdi>٠,٧٥</bdi>","<bdi>٠,٣٤</bdi>"], answer:2 },
+      { q:"الكسر العادي <bdi>١/٢</bdi> بصورة كسر عشري يساوي:", options:["<bdi>٠,٢</bdi>","<bdi>٠,٥</bdi>","<bdi>٠,٠٥</bdi>","<bdi>٠,١٢</bdi>"], answer:1 },
+      { q:"الكسر العشري الدوري هو كسر عشري:", options:["ينتهي بعدد محدد من المنازل","يتكرر فيه رقم أو أكثر دون انتهاء","مقامه يساوي صفراً","ليس له تمثيل كسري"], answer:1 },
+      { q:"يوضع خط أفقي صغير (شرطة) فوق الرقم في الكسر العشري ليدل على أنه:", options:["عدد سالب","عدد دوري متكرر","جذر تربيعي","عدد تقريبي"], answer:1 },
+      { q:"الكسر العادي <bdi>١/٥</bdi> بصورة كسر عشري يساوي:", options:["<bdi>٠,٢</bdi>","<bdi>٠,٥</bdi>","<bdi>٠,١</bdi>","<bdi>٠,٢٥</bdi>"], answer:0 },
+      { q:"عند المقارنة بين العددين النسبيين <bdi>٥/٧</bdi> و <bdi>٣/٧</bdi>، فإن:", options:["<bdi>٥/٧ > ٣/٧</bdi>","<bdi>٥/٧ < ٣/٧</bdi>","<bdi>٥/٧ = ٣/٧</bdi>","لا يمكن المقارنة"], answer:0 },
+      { q:"أي عدد نسبي موجب مقارنة بأي عدد نسبي سالب يكون:", options:["أصغر منه","أكبر منه","مساوياً له","ضعفه"], answer:1 },
+      { q:"الرمز المناسب بين: <bdi>-٣/٥ ..... ٠</bdi> هو:", options:["<bdi>></bdi>","<bdi><</bdi>","<bdi>=</bdi>","<bdi>≥</</bdi>"], answer:1 },
+      { q:"الرمز المناسب بين: <bdi>٢/٣ ..... ٢/٣</bdi> هو:", options:["<bdi>></bdi>","<bdi><</bdi>","<bdi>=</bdi>","<bdi>≠</bdi>"], answer:2 },
+      { q:"الرمز المناسب بين: <bdi>١/٤ ..... ٣/٤</bdi> هو:", options:["<bdi><</bdi>","<bdi>></bdi>","<bdi>=</bdi>","<bdi>≥</</bdi>"], answer:0 },
+      { q:"ناتج جمع: <bdi>٢/٧ + ٣/٧</bdi> يساوي:", options:["<bdi>٥/١٤</bdi>","<bdi>٥/٧</bdi>","<bdi>٦/٧</bdi>","<bdi>١/٧</bdi>"], answer:1 },
+      { q:"العنصر المحايد الجمعي في مجموعة الأعداد النسبية هو:", options:["<bdi>١</bdi>","<bdi>٠</bdi>","<bdi>-١</bdi>","لا يوجد"], answer:1 },
+      { q:"النظير الجمعي للعدد النسبي <bdi>-٤/٩</bdi> هو:", options:["<bdi>-٤/٩</bdi>","<bdi>٩/٤</bdi>","<bdi>٤/٩</bdi>","<bdi>-٩/٤</bdi>"], answer:2 },
+      { q:"ناتج جمع أي عدد نسبي مع نظيره الجمعي يساوي:", options:["<bdi>١</bdi>","<bdi>٠</bdi>","العدد نفسه","ضعف العدد"], answer:1 },
+      { q:"ناتج جمع: <bdi>(-٣/٨) + ٥/٨</bdi> يساوي:", options:["<bdi>٢/٨ = ١/٤</bdi>","<bdi>-٨/٨</bdi>","<bdi>٨/٨</bdi>","<bdi>-٢/٨</bdi>"], answer:0 },
+      { q:"عملية طرح الأعداد النسبية تعني إضافة:", options:["المحايد الضربي","النظير الجمعي للمطروح","النظير الضربي للمطروح","الصفر"], answer:1 },
+      { q:"ناتج طرح: <bdi>٥/٩ - ٢/٩</bdi> يساوي:", options:["<bdi>٣/٩ = ١/٣</bdi>","<bdi>٧/٩</bdi>","<bdi>٣/٠</bdi>","<bdi>١/٩</bdi>"], answer:0 },
+      { q:"ناتج طرح: <bdi>٤/٥ - ٤/٥</bdi> يساوي:", options:["<bdi>١</bdi>","<bdi>٠</bdi>","<bdi>٨/٥</bdi>","<bdi>٤/٥</bdi>"], answer:1 },
+      { q:"ناتج: <bdi>٠ - (-٣/٧)</bdi> يساوي:", options:["<bdi>-٣/٧</bdi>","<bdi>٣/٧</bdi>","<bdi>٠</bdi>","<bdi>٧/٣</bdi>"], answer:1 },
+      { q:"ناتج: <bdi>-٦/١١ - ٢/١١</bdi> يساوي:", options:["<bdi>-٤/١١</bdi>","<bdi>-٨/١١</bdi>","<bdi>٨/١١</bdi>","<bdi>٤/١١</bdi>"], answer:1 },
+      { q:"حاصل ضرب عددين نسبيين موجبين هو عدد نسبي:", options:["سالب","موجب","صفر","كسري دائماً"], answer:1 },
+      { q:"حاصل ضرب عدد نسبي موجب في عدد نسبي سالب هو عدد نسبي:", options:["موجب","سالب","صفر","غير نسبي"], answer:1 },
+      { q:"ناتج ضرب: <bdi>(٢/٣) × (٤/٥)</bdi> يساوي:", options:["<bdi>٦/٨</bdi>","<bdi>٨/١٥</bdi>","<bdi>٦/١٥</bdi>","<bdi>٨/٨</bdi>"], answer:1 },
+      { q:"العنصر المحايد الضربي في مجموعة الأعداد النسبية هو:", options:["<bdi>٠</bdi>","<bdi>١</bdi>","<bdi>-١</bdi>","<bdi>٢</bdi>"], answer:1 },
+      { q:"حاصل ضرب أي عدد نسبي في صفر يساوي:", options:["العدد نفسه","<bdi>١</bdi>","<bdi>٠</bdi>","غير معرّف"], answer:2 },
+      { q:"لقسمة عدد نسبي على آخر (غير الصفر)، نضرب المقسوم في:", options:["المقسوم عليه نفسه","النظير الضربي للمقسوم عليه","النظير الجمعي للمقسوم عليه","الواحد"], answer:1 },
+      { q:"ناتج قسمة: <bdi>(٢/٥) ÷ (٢/٥)</bdi> يساوي:", options:["<bdi>٠</bdi>","<bdi>١</bdi>","<bdi>٤/٢٥</bdi>","غير معرّف"], answer:1 },
+      { q:"ناتج: <bdi>(٣/٤) ÷ ١</bdi> يساوي:", options:["<bdi>١</bdi>","<bdi>٣/٤</bdi>","<bdi>٤/٣</bdi>","<bdi>٠</bdi>"], answer:1 },
+      { q:"القسمة على الصفر في الأعداد النسبية تكون:", options:["تساوي صفراً","تساوي واحداً","عملية غير ممكنة (غير معرّفة)","تساوي ما لا نهاية"], answer:2 },
+      { q:"ناتج: <bdi>٠ ÷ (٥/٧)</bdi> يساوي:", options:["<bdi>٠</bdi>","<bdi>٥/٧</bdi>","<bdi>٧/٥</bdi>","غير معرّف"], answer:0 },
+      { q:"الجذر التربيعي للعدد النسبي <bdi>٩/١٦</bdi> هو:", options:["<bdi>٣/٨</bdi>","<bdi>٣/٤</bdi>","<bdi>٩/٤</bdi>","<bdi>١/٢</bdi>"], answer:1 },
+      { q:"الجذر التربيعي للعدد <bdi>٠,٢٥</bdi> يساوي:", options:["<bdi>٠,٥</bdi>","<bdi>٠,٠٥</bdi>","<bdi>٠,٢٥</bdi>","<bdi>٥</bdi>"], answer:0 },
+      { q:"الجذر التكعيبي للعدد النسبي <bdi>٨/٢٧</bdi> هو:", options:["<bdi>٢/٣</bdi>","<bdi>٤/٩</bdi>","<bdi>٢/٩</bdi>","<bdi>٤/٣</bdi>"], answer:0 },
+      { q:"الجذر التكعيبي للعدد النسبي السالب <bdi>-٦٤</bdi> هو:", options:["<bdi>-٨</bdi>","<bdi>-٤</bdi>","<bdi>٤</bdi>","ليس له وجود"], answer:1 },
+      { q:"الجذر التربيعي للعدد النسبي <bdi>٤٩</bdi> هو:", options:["<bdi>٧</bdi>","<bdi>١٤</bdi>","<bdi>٤٩</bdi>","<bdi>٧</bdi> أو <bdi>-٧</bdi> (القيمة الموجبة ٧)"], answer:0 }
+    ]
+  },
+  medium: {
+    title:"المستوى الثاني: الأسئلة المتوسطة",
+    color:"var(--medium)",
+    questions:[
+      { q:"العدد النسبي <bdi>-٣ / -٧</bdi> يعتبر عدداً:", options:["سالباً","موجباً","صفراً","غير نسبي"], answer:1 },
+      { q:"العدد الكسري <bdi>٢ و ١/٣</bdi> على صورة <bdi>أ/ب</bdi> يساوي:", options:["<bdi>٥/٣</bdi>","<bdi>٧/٣</bdi>","<bdi>٦/٣</bdi>","<bdi>٣/٧</bdi>"], answer:1 },
+      { q:"العدد النسبي <bdi>١٢ / ١٦</bdi> في أبسط صورة هو:", options:["<bdi>٦/٨</bdi>","<bdi>٣/٤</bdi>","<bdi>١/٢</bdi>","<bdi>٤/٣</bdi>"], answer:1 },
+      { q:"أي من الجذور الآتية يعتبر عدداً غير نسبي؟", options:["جذر <bdi>٩</bdi>","جذر <bdi>١٦</bdi>","جذر <bdi>٥</bdi>","جذر <bdi>٢٥</bdi>"], answer:2 },
+      { q:"العلاقة الصحيحة بين مجموعات الأعداد <bdi>ط</bdi> (الطبيعية) ، <bdi>ص</bdi> (الصحيحة) ، <bdi>ن</bdi> (النسبية) هي:", options:["<bdi>ط ⊂ ص ⊂ ن</bdi>","<bdi>ن ⊂ ص ⊂ ط</bdi>","<bdi>ص ⊂ ط ⊂ ن</bdi>","<bdi>ط = ص = ن</bdi>"], answer:0 },
+      { q:"العدد النسبي <bdi>٧/٣</bdi> يقع على خط الأعداد بين:", options:["<bdi>١</bdi> و <bdi>٢</bdi>","<bdi>٢</bdi> و <bdi>٣</bdi>","<bdi>٣</bdi> و <bdi>٤</bdi>","<bdi>٠</bdi> و <bdi>١</bdi>"], answer:1 },
+      { q:"العدد النسبي <bdi>-١ و ١/٢</bdi> يقع بين العددين الصحيحين:", options:["<bdi>-١</bdi> و <bdi>٠</bdi>","<bdi>-٢</bdi> و <bdi>-١</bdi>","<bdi>-٣</bdi> و <bdi>-٢</bdi>","<bdi>١</bdi> و <bdi>٢</bdi>"], answer:1 },
+      { q:"إذا قسمت المسافة بين <bdi>٠</bdi> و <bdi>١</bdi> إلى ٥ أقسام متساوية، فإن النقطة الثالثة بعد الصفر تمثل:", options:["<bdi>١/٥</bdi>","<bdi>٢/٥</bdi>","<bdi>٣/٥</bdi>","<bdi>٤/٥</bdi>"], answer:2 },
+      { q:"على خط الأعداد، كلما اتجهنا إلى اليمين فإن قيمة الأعداد:", options:["تقل","تزداد","تبقى ثابتة","تساوي صفراً"], answer:1 },
+      { q:"النقطة الواقعة في منتصف المسافة تماماً بين <bdi>٠</bdi> و <bdi>-١</bdi> تمثل العدد النسبي:", options:["<bdi>-١/٤</bdi>","<bdi>-١/٢</bdi>","<bdi>-٣/٤</bdi>","<bdi>١/٢</bdi>"], answer:1 },
+      { q:"الكسر العادي <bdi>١/٣</bdi> بصورة كسر عشري هو:", options:["<bdi>٠,٣</bdi> منتهٍ","<bdi>٠,٣٣</bdi> منتهٍ","<bdi>٠,٣</bdi> دوري","<bdi>٠,١٣</bdi> دوري"], answer:2 },
+      { q:"الكسر العادي <bdi>-٣/٨</bdi> بصورة عشرية يساوي:", options:["<bdi>-٠,٣٧٥</bdi>","<bdi>-٠,١٢٥</bdi>","<bdi>-٠,٦٢٥</bdi>","<bdi>-٠,٨٣</bdi>"], answer:0 },
+      { q:"أي من الأعداد النسبية الآتية يمثل كسراً عشرياً منتهياً؟", options:["<bdi>١/٣</bdi>","<bdi>٢/٣</bdi>","<bdi>٣/١٠</bdi>","<bdi>١/٦</bdi>"], answer:2 },
+      { q:"الكسر العشري الدوري <bdi>٠,٧</bdi> دوري على صورة <bdi>أ/ب</bdi> يساوي:", options:["<bdi>٧/١٠</bdi>","<bdi>٧/٩</bdi>","<bdi>٧/١٠٠</bdi>","<bdi>٧/٩٩</bdi>"], answer:1 },
+      { q:"الكسر العادي <bdi>٢/٩</bdi> بصورة عشرية يكتب على شكل:", options:["<bdi>٠,٢</bdi> دوري","<bdi>٠,٢٢</bdi> منتهٍ","<bdi>٠,٩</bdi> دوري","<bdi>٠,٤٥</bdi>"], answer:0 },
+      { q:"للمقارنة بين <bdi>٣/٤</bdi> و <bdi>٥/٦</bdi>، نوحد المقامات بالمضاعف المشترك الأصغر وهو:", options:["<bdi>١٢</bdi>","<bdi>٢٤</bdi>","<bdi>١٠</bdi>","<bdi>٨</bdi>"], answer:0 },
+      { q:"الرمز المناسب بين: <bdi>٣/٤ ..... ٥/٦</bdi> هو:", options:["<bdi>></bdi>","<bdi><</bdi>","<bdi>=</bdi>","<bdi>≥</</bdi>"], answer:1 },
+      { q:"الرمز المناسب بين العددين السالبين: <bdi>-٢/٣ ..... -١/٣</bdi> هو:", options:["<bdi>></bdi>","<bdi><</bdi>","<bdi>=</bdi>","<bdi>≤</bdi>"], answer:1 },
+      { q:"المقارنة بين <bdi>٠,٥</bdi> و <bdi>٣/٥</bdi> تعطي:", options:["<bdi>٠,٥ > ٣/٥</bdi>","<bdi>٠,٥ < ٣/٥</bdi>","<bdi>٠,٥ = ٣/٥</bdi>","<bdi>٠,٥ ≥ ٣/٥</bdi>"], answer:1 },
+      { q:"أي من الأعداد النسبية الآتية هو الأصغر؟", options:["<bdi>١/٢</bdi>","<bdi>-١/٢</bdi>","<bdi>-٣/٤</bdi>","<bdi>٠</bdi>"], answer:2 },
+      { q:"ناتج جمع: <bdi>١/٣ + ١/٤</bdi> يساوي:", options:["<bdi>٢/٧</bdi>","<bdi>٧/١٢</bdi>","<bdi>١/١٢</bdi>","<bdi>٥/١٢</bdi>"], answer:1 },
+      { q:"خاصية الإبدال في جمع الأعداد النسبية تعني:", options:["<bdi>أ/ب + ج/د = ج/د + أ/ب</bdi>","<bdi>أ/ب + ٠ = أ/ب</bdi>","<bdi>(أ+ب)+ج = أ+(ب+ج)</bdi>","<bdi>أ/ب + (-أ/ب) = ٠</bdi>"], answer:0 },
+      { q:"ناتج جمع: <bdi>-٢/٥ + (-١/٥)</bdi> يساوي:", options:["<bdi>-٣/٥</bdi>","<bdi>٣/٥</bdi>","<bdi>-١/٥</bdi>","<bdi>-٣/١٠</bdi>"], answer:0 },
+      { q:"ناتج جمع: <bdi>٣/١٠ + ٠,٤</bdi> يساوي:", options:["<bdi>٠,٧</bdi>","<bdi>٠,٣٤</bdi>","<bdi>٠,١٢</bdi>","<bdi>٧/٢٠</bdi>"], answer:0 },
+      { q:"خاصية الانغلاق تعني أن ناتج جمع أي عددين نسبيين هو دائماً:", options:["عدد صحيح","عدد طبيعي","عدد نسبي","عدد عشري دوري"], answer:2 },
+      { q:"ناتج طرح: <bdi>٣/٤ - ١/٦</bdi> يساوي:", options:["<bdi>٢/٢</bdi>","<bdi>٧/١٢</bdi>","<bdi>٥/١٢</bdi>","<bdi>١/٢</bdi>"], answer:1 },
+      { q:"ناتج طرح: <bdi>-١/٢ - (-٣/٤)</bdi> يساوي:", options:["<bdi>١/٤</bdi>","<bdi>-١/٤</bdi>","<bdi>-٥/٤</bdi>","<bdi>٥/٤</bdi>"], answer:0 },
+      { q:"ناتج: <bdi>٢,٥ - ٠,٧٥</bdi> يساوي:", options:["<bdi>١,٧٥</bdi>","<bdi>١,٢٥</bdi>","<bdi>٣,٢٥</bdi>","<bdi>١,٥</bdi>"], answer:0 },
+      { q:"طريقان مجموع طوليهما ٧٠ كم، فإذا كان طول أحدهما ٣٢ و ١/٢ كم، فإن طول الآخر يساوي:", options:["<bdi>٣٧ و ١/٢ كم</bdi>","<bdi>٣٨ كم</bdi>","<bdi>٣٥ كم</bdi>","<bdi>٤٠ كم</bdi>"], answer:0 },
+      { q:"عملية الطرح في الأعداد النسبية:", options:["إبدالية دائماً","ليست إبدالية وليست تجميعية","تجميعية دائماً","لها عنصر محايد"], answer:1 },
+      { q:"النظير الضربي (المقلوب) للعدد النسبي <bdi>٣/٧</bdi> هو:", options:["<bdi>-٣/٧</bdi>","<bdi>٧/٣</bdi>","<bdi>-٧/٣</bdi>","<bdi>١</bdi>"], answer:1 },
+      { q:"النظير الضربي للعدد النسبي <bdi>-٥</bdi> هو:", options:["<bdi>٥</bdi>","<bdi>-١/٥</bdi>","<bdi>١/٥</bdi>","<bdi>٠</bdi>"], answer:1 },
+      { q:"ناتج ضرب: <bdi>(-٣/٤) × (-٨/٩)</bdi> يساوي:", options:["<bdi>-٢/٣</bdi>","<bdi>٢/٣</bdi>","<bdi>٢٤/٣٦</bdi>","ب و ج معاً"], answer:3 },
+      { q:"ناتج ضرب العدد النسبي في نظيره الضربي يساوي:", options:["<bdi>٠</bdi>","<bdi>١</bdi>","<bdi>-١</bdi>","العدد نفسه"], answer:1 },
+      { q:"خاصية توزيع الضرب على الجمع تعني:", options:["<bdi>أ×(ب+ج) = (أ×ب) + (أ×ج)</bdi>","<bdi>أ×ب = ب×أ</bdi>","<bdi>(أ×ب)×ج = أ×(ب×ج)</bdi>","<bdi>أ×١ = أ</bdi>"], answer:0 },
+      { q:"ناتج قسمة: <bdi>(٣/٤) ÷ (٥/٨)</bdi> يساوي:", options:["<bdi>١٥/٣٢</bdi>","<bdi>٦/٥</bdi> (أو ١ و ١/٥)","<bdi>٥/٦</bdi>","<bdi>٢٤/١٥</bdi>"], answer:1 },
+      { q:"ناتج قسمة: <bdi>(-٦/٧) ÷ (٣/١٤)</bdi> يساوي:", options:["<bdi>-٤</bdi>","<bdi>٤</bdi>","<bdi>-١٨/٩٨</bdi>","<bdi>-٢</bdi>"], answer:0 },
+      { q:"ناتج: <bdi>(-٢/٣) ÷ (-٤/٩)</bdi> يساوي:", options:["<bdi>-٣/٢</bdi>","<bdi>٣/٢</bdi> (أو ١ و ١/٢)","<bdi>٨/٢٧</bdi>","<bdi>-٨/٢٧</bdi>"], answer:1 },
+      { q:"عددان حاصل ضربهما ٨، فإذا كان أحدهما <bdi>٤/٣</bdi>، فإن العدد الآخر هو:", options:["<bdi>٦</bdi>","<bdi>٣٢/٣</bdi>","<bdi>٢</bdi>","<bdi>١٢</bdi>"], answer:0 },
+      { q:"عملية القسمة في الأعداد النسبية:", options:["إبدالية","تجميعية","ليست إبدالية وليست تجميعية","توزيعية دائماً"], answer:2 },
+      { q:"الجذر التربيعي للعدد النسبي <bdi>١ و ٩/١٦</bdi> يساوي:", options:["<bdi>٥/٤</bdi> (أو ١ و ١/٤)","<bdi>٣/٤</bdi>","<bdi>٤/٥</bdi>","<bdi>٢٥/١٦</bdi>"], answer:0 },
+      { q:"الجذر التكعيبي للعدد <bdi>٠,٠٠١</bdi> يساوي:", options:["<bdi>٠,١</bdi>","<bdi>٠,٠١</bdi>","<bdi>٠,٠٠١</bdi>","<bdi>١</bdi>"], answer:0 },
+      { q:"الجذر التكعيبي للعدد النسبي <bdi>-٢٧/١٢٥</bdi> يساوي:", options:["<bdi>-٣/٥</bdi>","<bdi>٣/٥</bdi>","<bdi>-٩/٢٥</bdi>","<bdi>-٣/٢٥</bdi>"], answer:0 },
+      { q:"مربع مساحته <bdi>٠,٦٤ م²</bdi>، فإن طول ضلعه يساوي:", options:["<bdi>٠,٨ م</bdi>","<bdi>٠,٠٨ م</bdi>","<bdi>٨ م</bdi>","<bdi>٠,٣٢ م</bdi>"], answer:0 },
+      { q:"خزان ماء مكعب الشكل حجمه <bdi>٨ م³</bdi>، فإن طول حرفه الداخلي يساوي:", options:["<bdi>٤ م</bdi>","<bdi>٢ م</bdi>","<bdi>٢,٨ م</bdi>","<bdi>١ م</bdi>"], answer:1 }
+    ]
+  },
+  hard: {
+    title:"المستوى الثالث: الأسئلة الصعبة",
+    color:"var(--hard)",
+    questions:[
+      { q:"لكتابة العدد النسبي <bdi>-١٨ / ٢٤</bdi> في أبسط صورة نقسم البسط والمقام على ع.م.أ وهو:", options:["<bdi>٢</bdi>","<bdi>٣</bdi>","<bdi>٦</bdi>","<bdi>٨</bdi>"], answer:2 },
+      { q:"العدد الكسري <bdi>-٣ و ٢/٥</bdi> على صورة <bdi>أ/ب</bdi> يساوي:", options:["<bdi>-١٥/٥</bdi>","<bdi>-١٣/٥</bdi>","<bdi>-١٧/٥</bdi>","<bdi>١٧/٥</bdi>"], answer:2 },
+      { q:"يكون العدد النسبي <bdi>(س - ٣) / ٥</bdi> مساوياً للصفر عندما س = :", options:["<bdi>٠</bdi>","<bdi>٥</bdi>","<bdi>٣</bdi>","<bdi>-٣</bdi>"], answer:2 },
+      { q:"الكسر <bdi>٧ / (س - ٤)</bdi> يكون عدداً نسبياً بشرط س ≠ :", options:["<bdi>٠</bdi>","<bdi>٧</bdi>","<bdi>-٤</bdi>","<bdi>٤</bdi>"], answer:3 },
+      { q:"أي العبارات الآتية صحيحة دائماً؟", options:["كل عدد نسبي هو عدد صحيح","كل عدد طبيعي هو عدد نسبي","الصفر ليس عدداً نسبياً","مجموعة الأعداد النسبية منتهية"], answer:1 },
+      { q:"العدد النسبي <bdi>-٩/٤</bdi> يقع على خط الأعداد بين العددين الصحيحين:", options:["<bdi>-٢</bdi> و <bdi>-٣</bdi>","<bdi>-١</bdi> و <bdi>-٢</bdi>","<bdi>-٣</bdi> و <bdi>-٤</bdi>","<bdi>٠</bdi> و <bdi>-١</bdi>"], answer:0 },
+      { q:"إذا كانت النقطة أ تمثل <bdi>٢/٣</bdi>، والنقطة ب تمثل <bdi>-٢/٣</bdi>، فإن نقطة المنتصف بينهما هي:", options:["<bdi>١/٣</bdi>","<bdi>٠</bdi>","<bdi>-١/٣</bdi>","<bdi>١</bdi>"], answer:1 },
+      { q:"العدد الذي يقع في منتصف المسافة بين <bdi>١/٤</bdi> و <bdi>٣/٤</bdi> هو:", options:["<bdi>١/٨</bdi>","<bdi>١/٢</bdi>","<bdi>٥/٨</bdi>","<bdi>١</bdi>"], answer:1 },
+      { q:"إذا تم تمثيل النقطة <bdi>س = ٢ و ٤/٥</bdi> على خط الأعداد، فإنها تبعد عن العدد ٢ مسافة قدرها:", options:["<bdi>٢/٥</bdi>","<bdi>٤/٥</bdi>","<bdi>١/٥</bdi>","<bdi>٣/٥</bdi>"], answer:1 },
+      { q:"أي من الأعداد النسبية الآتية هو الأقرب إلى الصفر على خط الأعداد؟", options:["<bdi>١/٢</bdi>","<bdi>-١/٤</bdi>","<bdi>١/٣</bdi>","<bdi>-٣/٤</bdi>"], answer:1 },
+      { q:"الكسر العشري الدوري <bdi>٠,١٥</bdi> دوري (الخط فوق ١٥ معاً) على صورة <bdi>أ/ب</bdi> يساوي:", options:["<bdi>١٥/١٠٠</bdi>","<bdi>١٥/٩٩</bdi>","<bdi>١٥/٩٠</bdi>","<bdi>١/١٥</bdi>"], answer:1 },
+      { q:"العدد الدوري <bdi>١,٣</bdi> دوري على صورة كسر عادي <bdi>أ/ب</bdi> يساوي:", options:["<bdi>١٣/٩</bdi>","<bdi>٤/٣</bdi>","<bdi>١٣/١٠</bdi>","<bdi>١ و ١/٩</bdi>"], answer:1 },
+      { q:"تحويل الكسر العادي <bdi>٥/٦</bdi> إلى كسر عشري يعطي:", options:["<bdi>٠,٨٣</bdi> (٣ فقط دوري)","<bdi>٠,٨٣</bdi> دوري للرقمين","<bdi>٠,٨٥</bdi> منتهٍ","<bdi>٠,٦</bdi> دوري"], answer:0 },
+      { q:"الكسر العشري الدوري <bdi>٠,٤</bdi> دوري على صورة <bdi>أ/ب</bdi> في أبسط صورة هو:", options:["<bdi>٤/١٠</bdi>","<bdi>٤/٩</bdi>","<bdi>٢/٥</bdi>","<bdi>٤/٩٩</bdi>"], answer:1 },
+      { q:"إذا كان <bdi>س = ٠,٦</bdi> دوري، فإن قيمة <bdi>٣س</bdi> تساوي:", options:["<bdi>١,٨</bdi>","<bdi>٢</bdi>","<bdi>٠,٢</bdi>","<bdi>١,٩</bdi>"], answer:1 },
+      { q:"عدد نسبي يقع بين <bdi>١/٣</bdi> و <bdi>٢/٣</bdi> هو:", options:["<bdi>١/٢</bdi> (أو ٣/٦)","<bdi>١/٦</bdi>","<bdi>٤/٣</bdi>","<bdi>٥/٦</bdi>"], answer:0 },
+      { q:"الترتيب التصاعدي الصحيح للأعداد: <bdi>-١/٢ ، ٣/٤ ، -٣/٤ ، ١/٤</bdi> هو:", options:["<bdi>-٣/٤ ، -١/٢ ، ١/٤ ، ٣/٤</bdi>","<bdi>-١/٢ ، -٣/٤ ، ١/٤ ، ٣/٤</bdi>","<bdi>٣/٤ ، ١/٤ ، -١/٢ ، -٣/٤</bdi>","<bdi>-٣/٤ ، ١/٤ ، -١/٢ ، ٣/٤</bdi>"], answer:0 },
+      { q:"الرمز المناسب بين: <bdi>-٥/٦ ..... -٧/٨</bdi> هو:", options:["<bdi>></bdi>","<bdi><</bdi>","<bdi>=</bdi>","<bdi>≤</bdi>"], answer:0 },
+      { q:"عدد الأعداد النسبية الواقعة بين العددين <bdi>٢/٥</bdi> و <bdi>٣/٥</bdi> هو:", options:["عدد واحد فقط","عددان","لا يوجد أي عدد","عدد لا نهائي من الأعداد"], answer:3 },
+      { q:"إذا كان <bdi>أ/٧ > ٥/٧</bdi>، فإن أصغر عدد صحيح يمكن أن يمثله أ هو:", options:["<bdi>٥</bdi>","<bdi>٦</bdi>","<bdi>٧</bdi>","<bdi>٤</bdi>"], answer:1 },
+      { q:"ناتج جمع: <bdi>(-٥/٦) + ٣/٨</bdi> يساوي:", options:["<bdi>-١١/٢٤</bdi>","<bdi>-٢/١٤</bdi>","<bdi>١/٢٤</bdi>","<bdi>-١/٢</bdi>"], answer:0 },
+      { q:"قيمة س التي تحقق: <bdi>س + (-٣/٧) = ٠</bdi> هي:", options:["<bdi>-٣/٧</bdi>","<bdi>٣/٧</bdi>","<bdi>٠</bdi>","<bdi>٧/٣</bdi>"], answer:1 },
+      { q:"ناتج: <bdi>( -٢ و ١/٤ ) + ١ و ١/٢</bdi> يساوي:", options:["<bdi>-٣/٤</bdi>","<bdi>-٣ و ٣/٤</bdi>","<bdi>٣/٤</bdi>","<bdi>-١</bdi>"], answer:0 },
+      { q:"باستخدام خاصية التجميع، ناتج: <bdi>[ ١/٥ + (-٤/٥) ] + ٣/٥</bdi> يساوي:", options:["<bdi>٠</bdi>","<bdi>٣/٥</bdi>","<bdi>-٣/٥</bdi>","<bdi>١/٥</bdi>"], answer:0 },
+      { q:"إذا كان <bdi>أ + ب = ٥/٩</bdi>، وكان <bdi>أ = -٢/٩</bdi>، فإن قيمة ب تساوي:", options:["<bdi>٣/٩</bdi>","<bdi>٧/٩</bdi>","<bdi>-٧/٩</bdi>","<bdi>-٣/٩</bdi>"], answer:1 },
+      { q:"ناتج طرح: <bdi>-٥/٨ - ٧/١٢</bdi> يساوي:", options:["<bdi>-٢٩/٢٤</bdi>","<bdi>-١/٢٤</bdi>","<bdi>١/٢٤</bdi>","<bdi>-١٢/٢٠</bdi>"], answer:0 },
+      { q:"العدد الذي إذا طرح من <bdi>٣/٥</bdi> كان الناتج <bdi>-١/٥</bdi> هو:", options:["<bdi>٢/٥</bdi>","<bdi>٤/٥</bdi>","<bdi>-٤/٥</bdi>","<bdi>-٢/٥</bdi>"], answer:1 },
+      { q:"ناتج: <bdi>( -٣ و ١/٣ ) - ( -١ و ١/٦ )</bdi> يساوي:", options:["<bdi>-٢ و ١/٦</bdi>","<bdi>-٤ و ١/٢</bdi>","<bdi>٢ و ١/٦</bdi>","<bdi>-٢ و ١/٢</bdi>"], answer:0 },
+      { q:"ما المقدار الذي يجب إضافته إلى <bdi>-٧/١٠</bdi> ليكون الناتج <bdi>١/٢</bdi>؟", options:["<bdi>٦/٥</bdi>","<bdi>١/٥</bdi>","<bdi>-١/٥</bdi>","<bdi>-٦/٥</bdi>"], answer:0 },
+      { q:"إذا كان <bdi>س - ٣/٨ = -٥/٨</bdi>، فإن قيمة س تساوي:", options:["<bdi>-١/٤</bdi>","<bdi>١/٤</bdi>","<bdi>-١</bdi>","<bdi>١</bdi>"], answer:0 },
+      { q:"العدد النسبي الذي ليس له نظير ضربي هو:", options:["<bdi>١</bdi>","<bdi>-١</bdi>","<bdi>٠</bdi>","<bdi>١/٢</bdi>"], answer:2 },
+      { q:"مساحة مستطيل طوله <bdi>٤ و ١/٢ سم</bdi> وعرضه <bdi>٢/٣ سم</bdi> تساوي:", options:["<bdi>٣ سم²</bdi>","<bdi>٦ سم²</bdi>","<bdi>٩/٢ سم²</bdi>","<bdi>٤ سم²</bdi>"], answer:0 },
+      { q:"قيمة المقدار: <bdi>(-٢/٣) × ( ٩/٤ + (-٣/٢) )</bdi> باستخدام التوزيع تساوي:", options:["<bdi>-١/٢</bdi>","<bdi>١/٢</bdi>","<bdi>-٢</bdi>","<bdi>٠</bdi>"], answer:0 },
+      { q:"النظير الضربي للعدد الكسري <bdi>٢ و ١/٣</bdi> هو:", options:["<bdi>-٧/٣</bdi>","<bdi>٣/٧</bdi>","<bdi>٧/٣</bdi>","<bdi>-٣/٧</bdi>"], answer:1 },
+      { q:"إذا كان <bdi>(٣/٥) × س = ١</bdi>، فإن قيمة س تساوي:", options:["<bdi>١</bdi>","<bdi>٣/٥</bdi>","<bdi>٥/٣</bdi>","<bdi>-٥/٣</bdi>"], answer:2 },
+      { q:"ناتج قسمة: <bdi>( -٣ و ١/٣ ) ÷ ( ٢ و ٢/٩ )</bdi> يساوي:", options:["<bdi>-٣/٢</bdi> (أو -١ و ١/٢)","<bdi>٣/٢</bdi>","<bdi>-٢٠/٩</bdi>","<bdi>-١</bdi>"], answer:0 },
+      { q:"إذا كان <bdi>س ÷ (-٢/٥) = ٥/٤</bdi>، فإن قيمة س تساوي:", options:["<bdi>-١/٢</bdi>","<bdi>١/٢</bdi>","<bdi>-٢٥/٨</bdi>","<bdi>-٨/٢٥</bdi>"], answer:0 },
+      { q:"مستطيل مساحته <bdi>٦ و ٣/٤ سم²</bdi>، فإذا كان طوله ٣ سم، فإن عرضه يساوي:", options:["<bdi>٢ و ١/٤ سم</bdi>","<bdi>٢ و ١/٢ سم</bdi>","<bdi>٣ سم</bdi>","<bdi>٢ سم</bdi>"], answer:0 },
+      { q:"قيمة س التي تحقق: <bdi>(-٧/٩) ÷ س = ١</bdi> هي:", options:["<bdi>٧/٩</bdi>","<bdi>-٧/٩</bdi>","<bdi>١</bdi>","<bdi>-٩/٧</bdi>"], answer:1 },
+      { q:"ناتج المقدار: <bdi>( ١/٢ ÷ ١/٣ ) ÷ ١/٤</bdi> يساوي:", options:["<bdi>٦</bdi>","<bdi>٢/٣</bdi>","<bdi>٣/٨</bdi>","<bdi>١/٢٤</bdi>"], answer:0 },
+      { q:"الجذر التربيعي للعدد <bdi>٠,٠١٤٤</bdi> يساوي:", options:["<bdi>٠,١٢</bdi>","<bdi>٠,٠١٢</bdi>","<bdi>١,٢</bdi>","<bdi>٠,٠٧٢</bdi>"], answer:0 },
+      { q:"الجذر التكعيبي للعدد الكسري <bdi>-٣ و ٣/٨</bdi> يساوي:", options:["<bdi>-٣/٢</bdi> (أو -١ و ١/٢)","<bdi>-٥/٢</bdi>","<bdi>-٩/٨</bdi>","<bdi>٣/٢</bdi>"], answer:0 },
+      { q:"قيمة المقدار: <bdi>جذر(١٦/٢٥) + الجذر التكعيبي(-٨/١٢٥)</bdi> تساوي:", options:["<bdi>٢/٥</bdi>","<bdi>٦/٥</bdi>","<bdi>٠</bdi>","<bdi>-٢/٥</bdi>"], answer:0 },
+      { q:"إذا كان حجم مكعب يساوي <bdi>٠,٠٢٧ سم³</bdi>، فإن مساحة أحد أوجهه تساوي:", options:["<bdi>٠,٠٩ سم²</bdi>","<bdi>٠,٣ سم²</bdi>","<bdi>٠,٩ سم²</bdi>","<bdi>٠,٠٦ سم²</bdi>"], answer:0 },
+      { q:"باستخدام الطريقة العامة، جذر العدد ٥ مقرباً لرقم عشري واحد هو تقريباً:", options:["<bdi>٢,٢</bdi>","<bdi>٢,٥</bdi>","<bdi>٢,٨</bdi>","<bdi>٢,٠</bdi>"], answer:0 }
+    ]
+  }
+};
+
+/* دوال اللعبة */
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function formatTime(sec){
+  const m = String(Math.floor(sec/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+let currentLevelKey = '';
+let currentQuestions = [];
+let currentQuestionIndex = 0;
+let score = 0;
+let isAnswering = false;
+let wrongAnswers = [];
+let timerInterval = null;
+let elapsedSeconds = 0;
+let gameStartTime = 0;
+
+function renderBestRecords(){
+  ['easy','medium','hard'].forEach(level => {
+    const btn = document.getElementById('btn-' + level);
+    if(!btn) return;
+    const old = btn.querySelector('.record-tag');
+    if(old) old.remove();
+    const best = localStorage.getItem('bestScore_' + level + '_unit2');
+    if(best !== null){
+      const tag = document.createElement('span');
+      tag.className = 'record-tag';
+      tag.textContent = '🏅 أفضل: ' + best + '/45';
+      btn.appendChild(tag);
+    }
+  });
+}
+
+function prepareQuestions(level){
+  return shuffle(quizData[level].questions).map(q => {
+    const opts = q.options.map((text,i)=>({ text, correct: i===q.answer }));
+    return { q: q.q, options: shuffle(opts) };
+  });
+}
+
+function startGame(level){
+  if(getAudioCtx()) {}
+  currentLevelKey = level;
+  currentQuestions = prepareQuestions(level);
+  currentQuestionIndex = 0;
+  score = 0;
+  wrongAnswers = [];
+  elapsedSeconds = 0;
+  isAnswering = false;
+
+  document.getElementById('score').innerText = '0';
+  document.getElementById('timer').innerText = '00:00';
+  document.getElementById('progress-fill').style.width = '0%';
+
+  const badge = document.getElementById('current-level-badge');
+  badge.innerText = quizData[level].title;
+  badge.style.backgroundColor = quizData[level].color;
+
+  startTimer();
+  showScreen('game-screen');
+  loadQuestion();
+}
+
+function startTimer(){
+  stopTimer();
+  gameStartTime = Date.now();
+  timerInterval = setInterval(()=>{
+    elapsedSeconds = Math.floor((Date.now() - gameStartTime)/1000);
+    document.getElementById('timer').innerText = formatTime(elapsedSeconds);
+  }, 500);
+}
+
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+}
+
+function loadQuestion(){
+  isAnswering = false;
+  const currentQ = currentQuestions[currentQuestionIndex];
+
+  document.getElementById('q-counter').innerText = `${currentQuestionIndex+1}/${currentQuestions.length}`;
+  document.getElementById('question-text').innerHTML = currentQ.q;
+
+  const pct = (currentQuestionIndex / currentQuestions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const letters = ['أ','ب','ج','د'];
+
+  currentQ.options.forEach((opt, index)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="key-hint">${letters[index]}</span> <span>${opt.text}</span>`;
+    btn.onclick = () => checkAnswer(index, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function checkAnswer(selectedIndex, btnElement){
+  if(isAnswering) return;
+  isAnswering = true;
+
+  const currentQ = currentQuestions[currentQuestionIndex];
+  const allButtons = document.querySelectorAll('.option-btn');
+  allButtons.forEach(b => b.disabled = true);
+
+  const correctIndex = currentQ.options.findIndex(o => o.correct);
+
+  if(selectedIndex === correctIndex){
+    btnElement.classList.add('correct');
+    score++;
+    document.getElementById('score').innerText = score;
+    playSound(true);
+  } else {
+    btnElement.classList.add('wrong');
+    allButtons[correctIndex].classList.add('correct');
+    playSound(false);
+
+    const letters = ['أ','ب','ج','د'];
+    wrongAnswers.push({
+      q: currentQ.q,
+      letter: letters[selectedIndex],
+      userAnswer: currentQ.options[selectedIndex].text,
+      correctLetter: letters[correctIndex],
+      correctAnswer: currentQ.options[correctIndex].text
+    });
+  }
+
+  const pctAfter = ((currentQuestionIndex+1) / currentQuestions.length) * 100;
+  document.getElementById('progress-fill').style.width = pctAfter + '%';
+
+  setTimeout(()=>{
+    currentQuestionIndex++;
+    if(currentQuestionIndex < currentQuestions.length){
+      loadQuestion();
+    } else {
+      endGame();
+    }
+  }, 1100);
+}
+
+function endGame(){
+  stopTimer();
+  showScreen('result-screen');
+
+  const total = currentQuestions.length;
+  const pct = score / total;
+
+  document.getElementById('final-score').innerText = score;
+  document.getElementById('final-time').innerText = formatTime(elapsedSeconds);
+
+  const stars = document.getElementById('stars-row');
+  const recordBox = document.getElementById('record-container');
+  recordBox.innerHTML = '';
+
+  let starCount = (pct === 1) ? 3 : (pct >= 0.7) ? 2 : (pct >= 0.4) ? 1 : 0;
+  stars.innerText = '⭐'.repeat(starCount) + '☆'.repeat(3 - starCount);
+
+  document.getElementById('review-btn').style.display = wrongAnswers.length ? 'inline-block' : 'none';
+
+  const bestKey = 'bestScore_' + currentLevelKey + '_unit2';
+  const prevBest = parseInt(localStorage.getItem(bestKey) || '0', 10);
+  if(score > prevBest){
+    localStorage.setItem(bestKey, score);
+    const banner = document.createElement('div');
+    banner.className = 'record-banner';
+    banner.textContent = '🎉 رقم قياسي جديد! 🎉';
+    recordBox.appendChild(banner);
+  } else if(prevBest > 0){
+    const info = document.createElement('div');
+    info.style.color = '#475569';
+    info.style.fontWeight = '700';
+    info.textContent = '🏅 أفضل نتيجة سابقة: ' + prevBest + '/' + total;
+    recordBox.appendChild(info);
+  }
+}
+
+function showReview(){
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  wrongAnswers.forEach((w, i)=>{
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    item.innerHTML = `<div class="r-q">${i+1}) ${w.q}</div>
+      <div class="r-ans">❌ إجابتك <b>(${w.letter})</b>: <span class="r-wrong">${w.userAnswer}</span></div>
+      <div class="r-ans">✅ الإجابة الصحيحة <b>(${w.correctLetter})</b>: <span class="r-right">${w.correctAnswer}</span></div>`;
+    list.appendChild(item);
+  });
+  showScreen('review-screen');
+}
+
+function restartSameLevel(){
+  if(currentLevelKey) startGame(currentLevelKey);
+}
+
+renderBestRecords();
+</script>
+</body>
+</html>

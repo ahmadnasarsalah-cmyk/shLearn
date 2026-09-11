@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تحدي المجموعات | منصة الأستاذة شهد</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-gradient-start:#e0f2fe; --bg-gradient-end:#bae6fd;
+  --card-bg:rgba(255,255,255,0.95);
+  --text-main:#0c4a6e; --text-muted:#475569;
+  --primary:#0284c7; --primary-hover:#0369a1;
+  --border-color:#cbd5e1;
+  --easy:#0ea5e9; --easy-hover:#0284c7;
+  --medium:#3b82f6; --medium-hover:#2563eb;
+  --hard:#6366f1; --hard-hover:#4f46e5;
+  --correct-bg:#d1fae5; --correct-border:#10b981; --correct-text:#047857;
+  --wrong-bg:#fee2e2; --wrong-border:#ef4444; --wrong-text:#b91c1c;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Tajawal',sans-serif;}
+body{
+  background:linear-gradient(135deg,var(--bg-gradient-start) 0%,var(--bg-gradient-end) 100%);
+  color:var(--text-main);min-height:100vh;display:flex;justify-content:center;
+  align-items:center;padding:20px;overflow-x:hidden;
+}
+.container{width:100%;max-width:820px;}
+.card{
+  background-color:var(--card-bg);border-radius:24px;padding:40px;
+  box-shadow:0 20px 40px -15px rgba(2,132,199,.2);
+  border:1px solid rgba(255,255,255,.5);backdrop-filter:blur(10px);
+  position:relative;overflow:hidden;
+}
+.screen{display:none;flex-direction:column;align-items:center;text-align:center;animation:fadeIn .5s ease;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+
+.card-top-bar{position:absolute;top:15px;left:15px;display:flex;gap:8px;z-index:5;}
+.icon-btn{
+  width:40px;height:40px;border-radius:50%;border:2px solid var(--border-color);
+  background:#fff;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;
+  justify-content:center;transition:.2s;
+}
+.icon-btn:hover{border-color:var(--primary);transform:scale(1.08);}
+
+.title{font-size:2.2rem;font-weight:900;color:var(--primary);margin-bottom:10px;}
+.subtitle{font-size:1.2rem;color:var(--text-muted);margin-bottom:30px;}
+
+.credit-badge{
+  margin-top:35px;padding:12px 25px;background:#f0f9ff;border:2px dashed var(--primary);
+  color:var(--primary-hover);border-radius:50px;font-size:1.2rem;font-weight:900;
+  display:flex;align-items:center;gap:10px;box-shadow:0 4px 10px rgba(2,132,199,.1);
+  transition:.3s;
+}
+
+.level-buttons{display:flex;flex-direction:column;gap:15px;width:100%;max-width:460px;}
+.btn-level{
+  padding:16px 24px;border:none;border-radius:16px;font-size:1.25rem;font-weight:700;
+  color:#fff;cursor:pointer;transition:.3s;box-shadow:0 4px 15px rgba(0,0,0,.1);
+  display:flex;align-items:center;justify-content:center;gap:10px;position:relative;
+}
+.btn-easy{background:var(--easy);} .btn-easy:hover{background:var(--easy-hover);transform:translateY(-3px);}
+.btn-medium{background:var(--medium);} .btn-medium:hover{background:var(--medium-hover);transform:translateY(-3px);}
+.btn-hard{background:var(--hard);} .btn-hard:hover{background:var(--hard-hover);transform:translateY(-3px);}
+.record-tag{
+  position:absolute;top:-8px;left:12px;background:#fbbf24;color:#78350f;font-size:.72rem;
+  font-weight:900;padding:3px 10px;border-radius:50px;box-shadow:0 2px 6px rgba(0,0,0,.15);
+}
+
+.game-header{
+  width:100%;display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:15px;padding-bottom:12px;border-bottom:2px dashed var(--border-color);
+  gap:10px;flex-wrap:wrap;
+}
+.level-badge{color:#fff;padding:8px 18px;border-radius:20px;font-weight:700;font-size:1.05rem;box-shadow:0 4px 10px rgba(0,0,0,.1);}
+.score-box{
+  font-size:1.05rem;font-weight:700;color:var(--primary);background:#f0f9ff;
+  padding:8px 15px;border-radius:12px;border:1px solid #e0f2fe;display:flex;gap:12px;align-items:center;
+}
+.score-box .time-chip{color:#7c3aed;}
+
+.progress-track{width:100%;height:10px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin-bottom:22px;}
+.progress-fill{
+  height:100%;width:0%;border-radius:20px;
+  background:linear-gradient(90deg,#22c55e,#0284c7,#6366f1);
+  transition:width .45s cubic-bezier(.22,1,.36,1);
+}
+
+.math-text,bdi{
+  font-family:Arial,sans-serif;font-size:1.1em;color:var(--primary-hover);font-weight:bold;
+  direction:ltr;unicode-bidi:isolate;display:inline-block;margin:0 3px;
+}
+.question-text{
+  font-size:1.5rem;font-weight:700;line-height:1.6;margin-bottom:28px;
+  color:var(--text-main);width:100%;text-align:right;
+}
+.options-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;width:100%;}
+.option-btn{
+  background:#fff;border:2px solid var(--border-color);color:var(--text-main);
+  padding:16px;border-radius:16px;font-size:1.05rem;font-weight:700;cursor:pointer;
+  transition:.2s;text-align:right;display:flex;align-items:center;
+  box-shadow:0 4px 6px rgba(0,0,0,.02);gap:8px;
+}
+.option-btn .key-hint{
+  background:#e0f2fe;color:var(--primary-hover);border-radius:6px;font-size:.8rem;
+  padding:2px 8px;font-weight:900;flex-shrink:0;
+}
+.option-btn:hover:not(:disabled){background:#f0f9ff;border-color:var(--primary);transform:translateY(-2px);}
+.option-btn.correct{background:var(--correct-bg);border-color:var(--correct-border);color:var(--correct-text);}
+.option-btn.wrong{background:var(--wrong-bg);border-color:var(--wrong-border);color:var(--wrong-text);}
+.option-btn:disabled{cursor:not-allowed;opacity:.85;}
+
+.btn-outline{
+  margin-top:25px;padding:12px 24px;background:transparent;border:2px solid var(--primary);
+  color:var(--primary);border-radius:12px;font-weight:700;cursor:pointer;transition:.3s;
+  text-decoration: none; display: inline-block;
+}
+.btn-outline:hover{background:var(--primary);color:#fff;}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:25px;}
+
+.result-icon{font-size:5rem;margin-bottom:15px;}
+.stars-row{font-size:2.4rem;letter-spacing:8px;margin:10px 0 5px;color:#fbbf24;}
+.record-banner{
+  background:#fef3c7;color:#92400e;font-weight:900;padding:8px 18px;border-radius:50px;
+  margin:10px 0;display:inline-block;
+}
+
+.review-list{width:100%;max-height:52vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:4px;}
+.review-item{
+  background:#f8fafc;border-right:5px solid #ef4444;border-radius:12px;
+  padding:14px 16px;text-align:right;
+}
+.review-item .r-q{font-weight:700;margin-bottom:8px;line-height:1.6;}
+.review-item .r-ans{margin:4px 0;font-size:.95rem;}
+.review-item .r-wrong{color:var(--wrong-text);font-weight:700;}
+.review-item .r-right{color:var(--correct-text);font-weight:700;}
+
+@media (max-width:600px){
+  .options-grid{grid-template-columns:1fr;}
+  .card{padding:22px;}
+  .question-text{font-size:1.15rem;}
+  .game-header{flex-direction:column;align-items:stretch;}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card">
+    <div class="card-top-bar">
+      <button class="icon-btn" id="sound-btn" onclick="toggleSound()" title="كتم/تشغيل الصوت">🔊</button>
+    </div>
+
+    <!-- ===== شاشة البداية ===== -->
+    <div class="screen active" id="start-screen">
+      <div style="font-size:4rem;margin-bottom:15px;">📘</div>
+      <h1 class="title">بنك أسئلة الرياضيات (الوحدة 1)</h1>
+      <p class="subtitle">يحتوي كل مستوى على 25 سؤالاً شاملاً لجميع الدروس</p>
+
+      <div class="level-buttons">
+        <button class="btn-level btn-easy" onclick="startGame('easy')" id="btn-easy">
+          <span>🟢</span> المستوى الأول (أسئلة سهلة)
+        </button>
+        <button class="btn-level btn-medium" onclick="startGame('medium')" id="btn-medium">
+          <span>🟡</span> المستوى الثاني (أسئلة متوسطة)
+        </button>
+        <button class="btn-level btn-hard" onclick="startGame('hard')" id="btn-hard">
+          <span>🔴</span> المستوى الثالث (أسئلة صعبة)
+        </button>
+      </div>
+
+      <!-- زر العودة للمنصة -->
+      <a href="../index.html" class="btn-outline" style="margin-top: 20px;">🔙 العودة للمنصة الرئيسية</a>
+
+      <div class="credit-badge">
+        <span>👩‍🏫</span> إعداد الأستاذة / شهد البرطي
+      </div>
+    </div>
+
+    <!-- ===== شاشة اللعب ===== -->
+    <div class="screen" id="game-screen">
+      <div class="game-header">
+        <div class="level-badge" id="current-level-badge">المستوى</div>
+        <div class="score-box">
+          <span>السؤال: <span id="q-counter">1/25</span></span>
+          <span>|</span>
+          <span>النقاط: <span id="score">0</span></span>
+          <span class="time-chip">⏱ <span id="timer">00:00</span></span>
+        </div>
+      </div>
+
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+      <div class="question-text" id="question-text">جاري التحميل...</div>
+      <div class="options-grid" id="options-grid"></div>
+
+      <button class="btn-outline" onclick="returnToMenu()">🏠 إنهاء الاختبار والعودة لقائمة المستويات</button>
+    </div>
+
+    <!-- ===== شاشة النتيجة ===== -->
+    <div class="screen" id="result-screen">
+      <div class="result-icon" id="result-icon">🏆</div>
+      <div class="stars-row" id="stars-row">⭐⭐⭐</div>
+      <h1 class="title" id="result-title">انتهى الاختبار!</h1>
+      <p class="subtitle" id="result-message" style="font-size:1.3rem;">لقد أكملت المستوى بنجاح.</p>
+      <div class="score-box" style="font-size:1.5rem;margin:18px 0;border:none;background:#e0f2fe;flex-direction:column;gap:4px;">
+        <div>النتيجة: <span id="final-score">0</span> / 25</div>
+        <div style="font-size:1rem;color:#7c3aed;">⏱ الزمن: <span id="final-time">00:00</span></div>
+      </div>
+      <div id="record-container"></div>
+
+      <div class="btn-row">
+        <button class="btn-level btn-easy" style="padding:12px 26px;" onclick="restartSameLevel()">🔄 أعد نفس المستوى</button>
+        <button class="btn-outline" onclick="showReview()" id="review-btn">📋 مراجعة الأخطاء</button>
+        <button class="btn-outline" onclick="returnToMenu()">🏠 قائمة المستويات</button>
+      </div>
+    </div>
+
+    <!-- ===== شاشة المراجعة ===== -->
+    <div class="screen" id="review-screen">
+      <h1 class="title">📋 مراجعة الأخطاء</h1>
+      <p class="subtitle" style="margin-bottom:15px;">راجع الأسئلة التي أخطأت فيها لتتعلم منها</p>
+      <div class="review-list" id="review-list"></div>
+      <div class="btn-row">
+        <button class="btn-outline" onclick="showScreen('result-screen')">↩ رجوع للنتيجة</button>
+        <button class="btn-outline" onclick="returnToMenu()">🏠 قائمة المستويات</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* دوال التنقل الأساسية المبسطة بدون حظر الرجوع */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function returnToMenu(){
+  stopTimer();
+  showScreen('start-screen');
+  renderBestRecords();
+}
+
+/* الصوت */
+let audioCtx = null;
+let soundMuted = false;
+function getAudioCtx(){
+  if(!audioCtx){
+    try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+    catch(e){ return null; }
+  }
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function toggleSound(){
+  soundMuted = !soundMuted;
+  document.getElementById('sound-btn').textContent = soundMuted ? '🔇' : '🔊';
+}
+function playSound(isCorrect){
+  if(soundMuted) return;
+  const ctx = getAudioCtx(); if(!ctx) return;
+  try{
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    if(isCorrect){
+      osc.type='sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1046.5, ctx.currentTime+.1);
+      gain.gain.setValueAtTime(.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.01, ctx.currentTime+.3);
+      osc.start(); osc.stop(ctx.currentTime+.3);
+    } else {
+      osc.type='sawtooth';
+      osc.frequency.setValueAtTime(150, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime+.2);
+      gain.gain.setValueAtTime(.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.01, ctx.currentTime+.3);
+      osc.start(); osc.stop(ctx.currentTime+.3);
+    }
+  }catch(e){}
+}
+
+/* ============================================================
+   بيانات الاختبار
+============================================================ */
+const quizData = {
+  easy: {
+    title:"المستوى الأول: الأسئلة السهلة",
+    color:"var(--easy)",
+    questions:[
+      { q:"أي من التجمعات الآتية تمثل مجموعة بالمعنى الرياضي الدقيق؟", options:["الطلاب الأذكياء في الصف","أرقام العدد <bdi>٥٣٢</bdi>","الكتب الجميلة في المكتبة","الأزهار الرائعة في الحديقة"], answer:1 },
+      { q:"إذا كانت <bdi>س = { حروف كلمة (عدن) }</bdi>، فإن عناصر <bdi>س</bdi> بطريقة السرد هي:", options:["<bdi>{ ع ، د }</bdi>","<bdi>{ ع ، د ، ن }</bdi>","<bdi>{ ع ، ن }</bdi>","<bdi>{ د ، ن }</bdi>"], answer:1 },
+      { q:"أي المجموعات التالية مجموعة منتهية؟", options:["مجموعة الأعداد الطبيعية","مجموعة الأعداد الفردية","مجموعة أرقام العدد <bdi>٧٥٤</bdi>","مجموعة مضاعفات العدد <bdi>٥</bdi>"], answer:2 },
+      { q:"إذا كانت <bdi>ل = { ٣ ، ٥ }</bdi>، فإن الرمز المناسب في الفراغ <bdi>٥ ..... ل</bdi> هو:", options:["<bdi>∋</bdi>","<bdi>∌</bdi>","<bdi>⊂</bdi>","<bdi>⊄</bdi>"], answer:0 },
+      { q:"أي المجموعات الآتية تعتبر مجموعة خالية؟", options:["<bdi>{ ٠ }</bdi>","مجموعة الأعداد الطبيعية المحصورة بين <bdi>٤</bdi> و <bdi>٥</bdi>","<bdi>{ ∅ }</bdi>","<bdi>{ ١ ، ٢ }</bdi>"], answer:1 },
+      { q:"إذا كان كل عنصر في المجموعة <bdi>س</bdi> ينتمي إلى المجموعة <bdi>ص</bdi>، فإن:", options:["<bdi>س ⊂ ص</bdi>","<bdi>ص ⊂ س</bdi>","<bdi>س ⊄ ص</bdi>","<bdi>س ∉ ص</bdi>"], answer:0 },
+      { q:"المجموعة الخالية <bdi>∅</bdi> بالنسبة لأي مجموعة <bdi>س</bdi> تكون:", options:["<bdi>∅ ⊂ س</bdi>","<bdi>∅ ⊄ س</bdi>","<bdi>∅ = س</bdi> دائماً","<bdi>∅ ∉ س</bdi> دائماً"], answer:0 },
+      { q:"أي مجموعة <bdi>س</bdi> بالنسبة لنفسها تحقق دائماً:", options:["<bdi>س ⊄ س</bdi>","<bdi>س ⊂ س</bdi>","<bdi>س ∈ س</bdi>","<bdi>س ∉ س</bdi>"], answer:1 },
+      { q:"إذا كانت <bdi>س = { ٢ }</bdi>، فإن عدد المجموعات الجزئية للمجموعة <bdi>س</bdi> هو:", options:["<bdi>١</bdi>","<bdi>٢</bdi>","<bdi>٣</bdi>","<bdi>٤</bdi>"], answer:1 },
+      { q:"إذا كانت <bdi>ك = { ٣ ، ٥ }</bdi> و <bdi>ل = { ٣ ، ٥ ، ٧ }</bdi>، فإن:", options:["<bdi>ل ⊂ ك</bdi>","<bdi>ك ⊂ ل</bdi>","<bdi>ك = ل</bdi>","<bdi>ك ⊄ ل</bdi>"], answer:1 },
+      { q:"المجموعة التي تحوي جميع العناصر والمجموعات قيد الدراسة تسمى:", options:["المجموعة الخالية","المجموعة الشاملة","المجموعة المنتهية","المجموعة الأحادية"], answer:1 },
+      { q:"يرمز للمجموعة الشاملة عادة بالرمز:", options:["<bdi>ط</bdi>","<bdi>ص</bdi>","<bdi>ش</bdi>","<bdi>ن</bdi>"], answer:2 },
+      { q:"في شكل فن، تمثل المجموعة الشاملة هندسياً عادة بشكل:", options:["دائرة","مثلث","مستطيل","خط مستقيم"], answer:2 },
+      { q:"إذا كانت <bdi>س = { ١ ، ٢ }</bdi>، <bdi>ص = { ٣ ، ٤ }</bdi>، فإن المجموعة الشاملة لهما يمكن أن تكون:", options:["<bdi>{ ١ ، ٢ }</bdi>","<bdi>{ ٣ ، ٤ }</bdi>","<bdi>{ ١ ، ٢ ، ٣ ، ٤ ، ٥ }</bdi>","<bdi>{ ٥ ، ٦ }</bdi>"], answer:2 },
+      { q:"العلاقة بين أي مجموعة جزئية <bdi>س</bdi> والمجموعة الشاملة <bdi>ش</bdi> هي:", options:["<bdi>ش ⊂ س</bdi>","<bdi>س ⊂ ش</bdi>","<bdi>س = ش</bdi> دائماً","<bdi>س ⊄ ش</bdi>"], answer:1 },
+      { q:"تقاطع مجموعتين <bdi>س ∩ ص</bdi> يعني مجموعة العناصر التي تنتمي إلى:", options:["<bdi>س</bdi> فقط","<bdi>ص</bdi> فقط","<bdi>س</bdi> و <bdi>ص</bdi> معاً","<bdi>س</bdi> أو <bdi>ص</bdi>"], answer:2 },
+      { q:"اتحاد مجموعتين <bdi>س ∪ ص</bdi> يعني مجموعة العناصر التي تنتمي إلى:", options:["<bdi>س</bdi> و <bdi>ص</bdi> معاً","<bdi>س</bdi> أو <bdi>ص</bdi>","المجموعة الشاملة فقط","المجموعة الخالية"], answer:1 },
+      { q:"الخاصية الإبدالية لعملية التقاطع يعبر عنها رمزياً بـ:", options:["<bdi>س ∩ ص = س ∪ ص</bdi>","<bdi>س ∩ ص = ص ∩ س</bdi>","<bdi>س ∩ ص = س</bdi>","<bdi>س ∩ ∅ = ∅</bdi>"], answer:1 },
+      { q:"إذا كانت <bdi>س = { ١ ، ٢ }</bdi> ، <bdi>ص = { ٢ ، ٣ }</bdi>، فإن <bdi>س ∩ ص =</bdi>", options:["<bdi>{ ١ }</bdi>","<bdi>{ ٢ }</bdi>","<bdi>{ ٣ }</bdi>","<bdi>{ ١ ، ٢ ، ٣ }</bdi>"], answer:1 },
+      { q:"إذا كانت <bdi>س = { ٤ ، ٥ }</bdi> ، <bdi>ص = { ٥ ، ٦ }</bdi>، فإن <bdi>س ∪ ص =</bdi>", options:["<bdi>{ ٥ }</bdi>","<bdi>{ ٤ ، ٦ }</bdi>","<bdi>{ ٤ ، ٥ ، ٦ }</bdi>","<bdi>{ ٤ ، ٥ ، ٥ ، ٦ }</bdi>"], answer:2 },
+      { q:"إذا كانت <bdi>س = { ١ ، ٢ }</bdi>، فإن <bdi>س × س</bdi> يحتوي على عدد أزواج مرتبة يساوي:", options:["<bdi>٢</bdi>","<bdi>٣</bdi>","<bdi>٤</bdi>","<bdi>٦</bdi>"], answer:2 },
+      { q:"العلاقة <bdi>ع</bdi> على المجموعة <bdi>س</bdi> هي:", options:["مجموعة جزئية من <bdi>س × س</bdi>","تساوي <bdi>س</bdi> دائماً","مجموعة جزئية من <bdi>س</bdi> فقط","عنصر من <bdi>س</bdi>"], answer:0 },
+      { q:"تكون العلاقة <bdi>ع</bdi> انعكاسية على المجموعة <bdi>س</bdi> إذا كان لكل <bdi>أ ∈ س</bdi>:", options:["<bdi>(أ ، أ) ∈ ع</bdi>","<bdi>(أ ، ب) ∈ ع</bdi>","<bdi>(أ ، أ) ∉ ع</bdi>","<bdi>ع = ∅</bdi>"], answer:0 },
+      { q:"تكون العلاقة <bdi>ع</bdi> متناظرة على <bdi>س</bdi> إذا كان لكل <bdi>(أ ، ب) ∈ ع</bdi>:", options:["<bdi>(أ ، أ) ∈ ع</bdi>","<bdi>(ب ، أ) ∈ ع</bdi>","<bdi>(ب ، ب) ∉ ع</bdi>","<bdi>أ = ب</bdi> دائماً"], answer:1 },
+      { q:"إذا كانت <bdi>س = { ٥ }</bdi>، فإن العلاقة الانعكاسية على <bdi>س</bdi> هي:", options:["<bdi>{ (٥ ، ٥) }</bdi>","<bdi>∅</bdi>","<bdi>{ ٥ }</bdi>","<bdi>{ (٥ ، ٠) }</bdi>"], answer:0 }
+    ]
+  },
+  medium: {
+    title:"المستوى الثاني: الأسئلة المتوسطة",
+    color:"var(--medium)",
+    questions:[
+      { q:"مجموعة حروف كلمة ( صنعاء ) بطريقة السرد هي:", options:["<bdi>{ ص ، ن ، ع ، ا ، ء }</bdi>","<bdi>{ ص ، ن ، ع }</bdi>","<bdi>{ ص ، ع ، ا ، ء }</bdi>","<bdi>{ ص ، ن ، ء }</bdi>"], answer:0 },
+      { q:"إذا كانت <bdi>س = { ٤ ، ٧ }</bdi>، <bdi>ص = { أرقام العدد ٧٤٤ }</bdi>، فإن العلاقة بين <bdi>س</bdi> و <bdi>ص</bdi> هي:", options:["<bdi>س ≠ ص</bdi>","<bdi>س = ص</bdi>","<bdi>س ⊂ ص</bdi> فقط","<bdi>س ⊄ ص</bdi>"], answer:1 },
+      { q:"إذا كانت <bdi>{ ٥ ، س } = { ٥ ، ٩ }</bdi>، فإن قيمة <bdi>س</bdi> تساوي:", options:["<bdi>٤</bdi>","<bdi>٥</bdi>","<bdi>٩</bdi>","<bdi>١٤</bdi>"], answer:2 },
+      { q:"أي من المجموعات الآتية غير منتهية؟", options:["مجموعة عوامل العدد <bdi>١٢</bdi>","مجموعة الأعداد الطبيعية الأكبر من <bdi>١٠</bdi>","مجموعة طلاب مدرستك","مجموعة ألوان علم الجمهورية اليمنية"], answer:1 },
+      { q:"مجموعة الأعداد الصحيحة المحصورة بين <bdi>-٢</bdi> و <bdi>٢</bdi> بطريقة السرد هي:", options:["<bdi>{ -١ ، ٠ ، ١ }</bdi>","<bdi>{ -٢ ، -١ ، ٠ ، ١ ، ٢ }</bdi>","<bdi>{ ٠ ، ١ }</bdi>","<bdi>{ -١ ، ١ }</bdi>"], answer:0 },
+      { q:"إذا كانت المجموعة <bdi>س</bdi> تحتوي على ٣ عناصر، فإن عدد مجموعاتها الجزئية يساوي:", options:["<bdi>٣</bdi>","<bdi>٦</bdi>","<bdi>٨</bdi>","<bdi>٩</bdi>"], answer:2 },
+      { q:"جميع المجموعات الجزئية للمجموعة <bdi>{ أ ، ب }</bdi> هي:", options:["<bdi>∅ ، { أ } ، { ب }</bdi>","<bdi>{ أ } ، { ب } ، { أ ، ب }</bdi>","<bdi>∅ ، { أ } ، { ب } ، { أ ، ب }</bdi>","<bdi>{ أ ، ب }</bdi> فقط"], answer:2 },
+      { q:"إذا كانت <bdi>{ ٦ } ⊂ { س ، ٨ }</bdi>، فإن قيمة <bdi>س</bdi> تساوي:", options:["<bdi>٦</bdi>","<bdi>٨</bdi>","<bdi>٢</bdi>","<bdi>١٤</bdi>"], answer:0 },
+      { q:"إذا كان عدد المجموعات الجزئية لمجموعة ما هو ١٦ مجموعة، فإن عدد عناصرها هو:", options:["<bdi>٢</bdi>","<bdi>٣</bdi>","<bdi>٤</bdi>","<bdi>٥</bdi>"], answer:2 },
+      { q:"إذا كانت <bdi>س = { حروف كلمة (إب) }</bdi>، فإن عدد المجموعات الجزئية لها هو:", options:["<bdi>٢</bdi>","<bdi>٤</bdi>","<bdi>٦</bdi>","<bdi>٨</bdi>"], answer:1 },
+      { q:"إذا كانت <bdi>س = { طلاب الصف الثامن }</bdi>، <bdi>ص = { طلاب الصف السابع }</bdi>، فإن المجموعة الشاملة المناسبة هي:", options:["طلاب الصف السادس","طلاب المدرسة جميعهم","طلاب الصف السابع فقط","معلمو المدرسة"], answer:1 },
+      { q:"لتكن <bdi>س = { أ ، ب }</bdi>، <bdi>ص = { ج }</bdi>، أي المجموعات الآتية لا تصلح أن تكون مجموعة شاملة لهما؟", options:["<bdi>{ أ ، ب ، ج }</bdi>","<bdi>{ أ ، ب ، ج ، د }</bdi>","<bdi>{ أ ، ب ، هـ }</bdi>","<bdi>{ أ ، ب ، ج ، و ، ز }</bdi>"], answer:2 },
+      { q:"إذا كانت <bdi>ش = { ١ ، ٢ ، ٣ ، ٤ ، ٥ }</bdi> و <bdi>س = { ٢ ، ٤ }</bdi>، فإن عدد عناصر <bdi>ش</bdi> هو:", options:["<bdi>٢</bdi>","<bdi>٣</bdi>","<bdi>٥</bdi>","<bdi>٧</bdi>"], answer:2 },
+      { q:"لتكن <bdi>س = { ٢ ، ٣ }</bdi> ، <bdi>ص = { ٤ ، ٥ }</bdi> ، <bdi>ع = { ٥ ، ٦ }</bdi>، فإن أصغر مجموعة شاملة تحويهم هي:", options:["<bdi>{ ٢ ، ٣ ، ٤ ، ٥ }</bdi>","<bdi>{ ٢ ، ٣ ، ٤ ، ٥ ، ٦ }</bdi>","<bdi>{ ٢ ، ٤ ، ٦ }</bdi>","<bdi>{ ٣ ، ٥ }</bdi>"], answer:1 },
+      { q:"إذا كانت <bdi>ش</bdi> مجموعة أيام الأسبوع، و <bdi>س = { الجمعة ، السبت }</bdi>، فإن <bdi>س</bdi> تعتبر:", options:["مجموعة غير منتهية","مجموعة شاملة","مجموعة جزئية من <bdi>ش</bdi>","مجموعة خالية"], answer:2 },
+      { q:"الخاصية التجميعية للاتحاد لأي ثلاث مجموعات <bdi>س ، ص ، ع</bdi> هي:", options:["<bdi>(س ∪ ص) ∪ ع = س ∪ (ص ∪ ع)</bdi>","<bdi>(س ∩ ص) ∪ ع = س ∩ (ص ∪ ع)</bdi>","<bdi>س ∪ ص = ص ∪ س</bdi>","<bdi>س ∪ ∅ = س</bdi>"], answer:0 },
+      { q:"خاصية توزيع التقاطع على الاتحاد هي:", options:["<bdi>س ∩ (ص ∪ ع) = (س ∩ ص) ∪ (س ∩ ع)</bdi>","<bdi>س ∪ (ص ∩ ع) = (س ∪ ص) ∩ (س ∪ ع)</bdi>","<bdi>س ∩ (ص ∩ ع) = (س ∩ ص) ∩ ع</bdi>","<bdi>س ∪ ص = ص ∪ س</bdi>"], answer:0 },
+      { q:"إذا كانت <bdi>س ∩ ص = { ٢ ، ٣ }</bdi> ، <bdi>س ∩ ع = { ٣ ، ٥ }</bdi>، فإن <bdi>س ∩ (ص ∪ ع)</bdi> تساوي:", options:["<bdi>{ ٣ }</bdi>","<bdi>{ ٢ ، ٣ ، ٥ }</bdi>","<bdi>{ ٢ ، ٥ }</bdi>","<bdi>∅</bdi>"], answer:1 },
+      { q:"لأي مجموعة <bdi>س</bdi>، فإن <bdi>س ∩ ∅</bdi> يساوي:", options:["<bdi>س</bdi>","<bdi>∅</bdi>","<bdi>ش</bdi>","<bdi>{ ٠ }</bdi>"], answer:1 },
+      { q:"لأي مجموعة <bdi>س</bdi>، فإن <bdi>س ∪ س</bdi> يساوي:", options:["<bdi>∅</bdi>","<bdi>س</bdi>","<bdi>ش</bdi>","<bdi>س²</bdi>"], answer:1 },
+      { q:"إذا كانت <bdi>س = { ١ ، ٢ }</bdi>، أي العلاقات الآتية انعكاسية على <bdi>س</bdi>؟", options:["<bdi>{ (١ ، ١) }</bdi>","<bdi>{ (٢ ، ٢) }</bdi>","<bdi>{ (١ ، ١) ، (٢ ، ٢) }</bdi>","<bdi>{ (١ ، ٢) ، (٢ ، ١) }</bdi>"], answer:2 },
+      { q:"إذا كانت <bdi>س = { ٣ ، ٤ }</bdi>، أي العلاقات الآتية متناظرة وليست انعكاسية؟", options:["<bdi>{ (٣ ، ٣) ، (٤ ، ٤) }</bdi>","<bdi>{ (٣ ، ٤) ، (٤ ، ٣) }</bdi>","<bdi>{ (٣ ، ٤) }</bdi>","<bdi>∅</bdi> فقط"], answer:1 },
+      { q:"العلاقة <bdi>ع = { (١ ، ٢) ، (٢ ، ١) ، (١ ، ١) ، (٢ ، ٢) }</bdi> على <bdi>س = { ١ ، ٢ }</bdi> هي:", options:["انعكاسية فقط","متناظرة فقط","انعكاسية ومتناظرة معاً","ليست انعكاسية وليست متناظرة"], answer:2 },
+      { q:"العلاقة <bdi>ع = { (٢ ، ٣) }</bdi> على المجموعة <bdi>{ ٢ ، ٣ }</bdi> هي:", options:["انعكاسية","متناظرة","ليست انعكاسية وليست متناظرة","شاملة"], answer:2 },
+      { q:"في المخطط السهمي للعلاقة الانعكاسية، يخرج من كل عنصر سهم:", options:["إلى كل العناصر الأخرى","يلتف حول العنصر نفسه (عروة)","إلى الصفر فقط","لا يخرج أي سهم"], answer:1 }
+    ]
+  },
+  hard: {
+    title:"المستوى الثالث: الأسئلة الصعبة",
+    color:"var(--hard)",
+    questions:[
+      { q:"إذا كانت <bdi>{ ٣ ، س ، ٧ } = { ٧ ، ٥ ، ٣ }</bdi>، فإن قيمة <bdi>س²</bdi> تساوي:", options:["<bdi>٢٥</bdi>","<bdi>٥</bdi>","<bdi>١٠</bdi>","<bdi>١٥</bdi>"], answer:0 },
+      { q:"إذا كانت <bdi>س = { أ : أ ∈ ط ، أ تقبل القسمة على ٤ والأصغر من ١٢ }</bdi>، فإن عدد عناصر <bdi>س</bdi> هو:", options:["عنصران <bdi>(٤، ٨)</bdi>","٣ عناصر","٤ عناصر","مجموعة خالية"], answer:0 },
+      { q:"العبارة الصحيحة فيما يلي هي:", options:["<bdi>∅ ∈ { ١ ، ٢ }</bdi>","<bdi>{ ٤ } ∈ { ٤ ، ٥ }</bdi>","<bdi>{ ٣ } = { ٣ ، ٣ }</bdi>","<bdi>{ ٥ } = ٥</bdi>"], answer:2 },
+      { q:"المجموعة <bdi>ع = { ٨ ، ١٠ ، ١٢ }</bdi> بذكر الصفة المميزة هي:", options:["<bdi>{ أ : أ عدد زوجي }</bdi>","<bdi>{ أ : أ عدد زوجي ، ٦ < أ < ١٤ }</bdi>","<bdi>{ أ : أ عدد طبيعي }</bdi>","<bdi>{ أ : أ عدد فردي }</bdi>"], answer:1 },
+      { q:"إذا كانت <bdi>س</bdi> مجموعة عوامل العدد <bdi>٦</bdi>، <bdi>ص</bdi> مجموعة أرقام العدد <bdi>٢١٣</bdi>، فإن:", options:["<bdi>س = ص</bdi>","<bdi>س ≠ ص</bdi> لأن <bdi>٦ ∈ س</bdi> و <bdi>٦ ∉ ص</bdi>","<bdi>س ⊂ ص</bdi>","<bdi>ص</bdi> خالية"], answer:1 },
+      { q:"إذا كانت <bdi>س = { ١ ، ٢ ، ٣ ، ٤ }</bdi>، فإن عدد المجموعات الجزئية الفعلية (غير <bdi>س</bdi> وغير <bdi>∅</bdi>) هو:", options:["<bdi>١٦</bdi>","<bdi>١٥</bdi>","<bdi>١٤</bdi>","<bdi>١٢</bdi>"], answer:2 },
+      { q:"إذا كانت <bdi>س ⊂ ص</bdi> و <bdi>ص ⊂ ع</bdi>، فإن العبارة الصحيحة دائماً هي:", options:["<bdi>ع ⊂ س</bdi>","<bdi>س ⊂ ع</bdi>","<bdi>س = ع</bdi>","<bdi>ص ⊄ ع</bdi>"], answer:1 },
+      { q:"إذا كانت <bdi>{ س ، ٤ } ⊂ { ٢ ، ٤ ، ٦ }</bdi>، فإن <bdi>س</bdi> يمكن أن تساوي:", options:["٢ أو ٦","٤ فقط","٨","أي عدد فردي"], answer:0 },
+      { q:"مجموعة ذات ٥ عناصر، كم عدد مجموعاتها الجزئية؟", options:["<bdi>١٠</bdi>","<bdi>٢٥</bdi>","<bdi>٣٢</bdi>","<bdi>٦٤</bdi>"], answer:2 },
+      { q:"إذا كانت <bdi>س = ∅</bdi>، فإن عدد مجموعاتها الجزئية يساوي:", options:["<bdi>٠</bdi>","<bdi>١</bdi>","<bdi>٢</bdi>","لا نهائي"], answer:1 },
+      { q:"إذا كانت <bdi>ش = { أرقام العدد ٩٨٧٦٥ }</bdi>، <bdi>س = { ٥ ، ٦ }</bdi>، <bdi>ص = { ٧ ، ٨ }</bdi>، فعدد العناصر المنتمية لـ <bdi>ش</bdi> ولا تنتمي لـ <bdi>س</bdi> أو <bdi>ص</bdi> هو:", options:["عنصر واحد (٩)","عنصران","٣ عناصر","صفر"], answer:0 },
+      { q:"إذا كانت <bdi>س ⊂ ص</bdi>، فإن مجموعة شاملة لهما يمكن أن تكون:", options:["<bdi>س</bdi> فقط","<bdi>ص</bdi>","<bdi>∅</bdi>","المجموعة الخالية"], answer:1 },
+      { q:"لتكن <bdi>ش = { أ : أ ∈ ط ، أ ≤ ٦ }</bdi>، و<bdi>س = { ٢ ، ٤ ، ٦ }</bdi>، <bdi>ص = { ١ ، ٣ ، ٥ }</bdi>، فإن <bdi>س ∪ ص</bdi> لـ <bdi>ش</bdi> تمثل:", options:["<bdi>ش</bdi> كاملة ما عدا الصفر","<bdi>ش</bdi> كاملة","مجموعة خالية","<bdi>س</bdi> فقط"], answer:0 },
+      { q:"إذا كانت <bdi>ش = { ١ ، ٢ ، ٣ ، ٤ }</bdi>، وكان عدد المجموعات الجزئية من <bdi>ش</bdi> هو:", options:["<bdi>٤</bdi>","<bdi>٨</bdi>","<bdi>١٦</bdi>","<bdi>٣٢</bdi>"], answer:2 },
+      { q:"إذا علمت أن <bdi>س ⊂ ش</bdi> ، <bdi>ص ⊂ ش</bdi> ، وكان <bdi>س ∩ ص = ∅</bdi>، فإن <bdi>س</bdi> و <bdi>ص</bdi> تسميان في شكل فن:", options:["مجموعتين متساويتين","مجموعتين منفصلتين داخل <bdi>ش</bdi>","مجموعتين متطابقتين","مجموعة شاملة"], answer:1 },
+      { q:"إذا كانت <bdi>س ⊂ ص</bdi>، فإن <bdi>س ∩ ص</bdi> يساوي:", options:["<bdi>س</bdi>","<bdi>ص</bdi>","<bdi>∅</bdi>","<bdi>ش</bdi>"], answer:0 },
+      { q:"إذا كانت <bdi>س ⊂ ص</bdi>، فإن <bdi>س ∪ ص</bdi> يساوي:", options:["<bdi>س</bdi>","<bdi>ص</bdi>","<bdi>∅</bdi>","<bdi>ش</bdi>"], answer:1 },
+      { q:"خاصية توزيع الاتحاد على التقاطع يعبر عنها بـ:", options:["<bdi>س ∪ (ص ∩ ع) = (س ∪ ص) ∩ (س ∪ ع)</bdi>","<bdi>س ∩ (ص ∪ ع) = (س ∩ ص) ∪ (س ∩ ع)</bdi>","<bdi>س ∪ (ص ∪ ع) = (س ∪ ص) ∪ ع</bdi>","<bdi>(س ∩ ص) = (ص ∩ س)</bdi>"], answer:0 },
+      { q:"إذا كانت <bdi>س = { ١ ، ٢ }</bdi> ، <bdi>ص = { ٣ }</bdi> ، <bdi>ع = { ٤ }</bdi>، فإن <bdi>س ∩ (ص ∪ ع)</bdi> يساوي:", options:["<bdi>{ ١ ، ٢ }</bdi>","<bdi>{ ٣ ، ٤ }</bdi>","<bdi>∅</bdi>","<bdi>{ ١ ، ٢ ، ٣ ، ٤ }</bdi>"], answer:2 },
+      { q:"إذا كانت <bdi>س ∪ (ص ∩ ع) = { ١ ، ٢ ، ٣ }</bdi>، وكان <bdi>س ∪ ص = { ١ ، ٢ ، ٣ ، ٤ }</bdi>، فإن <bdi>س ∪ ع</bdi> يمكن أن تكون:", options:["<bdi>{ ١ ، ٢ ، ٣ }</bdi>","<bdi>{ ٥ }</bdi>","<bdi>∅</bdi>","<bdi>{ ٤ }</bdi>"], answer:0 },
+      { q:"إذا كانت <bdi>ص = { ١ ، ٢ ، ٣ }</bdi>، وكانت <bdi>ع</bdi> علاقة (<bdi>أ + ب</bdi> عدد زوجي)، فإن الزوج <bdi>(١ ، ٣)</bdi>:", options:["ينتمي لـ <bdi>ع</bdi> لأن <bdi>١+٣=٤</bdi> زوجي","لا ينتمي إلى <bdi>ع</bdi>","ينتمي لأن <bdi>١</bdi> فردي","لا ينتمي لأن <bdi>٣</bdi> فردي"], answer:0 },
+      { q:"العلاقة <bdi>ع = { (٧ ، ٧) }</bdi> على المجموعة <bdi>ص = { ٥ ، ٧ }</bdi> تكون:", options:["انعكاسية ومتناظرة","متناظرة ولكنها ليست انعكاسية","انعكاسية وليست متناظرة","ليست متناظرة"], answer:1 },
+      { q:"إذا كانت <bdi>ك = { أ ، ب ، ج }</bdi>، فإن أقل عدد من الأزواج المرتبة لتكون <bdi>ع</bdi> علاقة انعكاسية هو:", options:["زوجان","٣ أزواج","٤ أزواج","٦ أزواج"], answer:1 },
+      { q:"علاقة (يقسم) على المجموعة <bdi>{ ٢ ، ٤ }</bdi> تحتوي على الأزواج المرتبة:", options:["<bdi>{ (٢ ، ٢) ، (٤ ، ٤) ، (٢ ، ٤) }</bdi>","<bdi>{ (٤ ، ٢) }</bdi> فقط","<bdi>{ (٢ ، ٤) }</bdi> فقط","<bdi>{ (٢ ، ٢) }</bdi> فقط"], answer:0 },
+      { q:"إذا كانت <bdi>ع</bdi> علاقة على <bdi>س = { ١ ، ٢ }</bdi>، و<bdi>ع = { (١ ، ١) ، (٢ ، ٢) ، (١ ، ٢) }</bdi>، فإن <bdi>ع</bdi>:", options:["انعكاسية وليست متناظرة","متناظرة وليست انعكاسية","انعكاسية ومتناظرة","ليست انعكاسية وليست متناظرة"], answer:0 }
+    ]
+  }
+};
+
+/* دوال اللعبة */
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function formatTime(sec){
+  const m = String(Math.floor(sec/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+let currentLevelKey = '';
+let currentQuestions = [];
+let currentQuestionIndex = 0;
+let score = 0;
+let isAnswering = false;
+let wrongAnswers = [];
+let timerInterval = null;
+let elapsedSeconds = 0;
+let gameStartTime = 0;
+
+function renderBestRecords(){
+  ['easy','medium','hard'].forEach(level => {
+    const btn = document.getElementById('btn-' + level);
+    if(!btn) return;
+    const old = btn.querySelector('.record-tag');
+    if(old) old.remove();
+    const best = localStorage.getItem('bestScore_' + level + '_unit1');
+    if(best !== null){
+      const tag = document.createElement('span');
+      tag.className = 'record-tag';
+      tag.textContent = '🏅 أفضل: ' + best + '/25';
+      btn.appendChild(tag);
+    }
+  });
+}
+
+function prepareQuestions(level){
+  return shuffle(quizData[level].questions).map(q => {
+    const opts = q.options.map((text,i)=>({ text, correct: i===q.answer }));
+    return { q: q.q, options: shuffle(opts) };
+  });
+}
+
+function startGame(level){
+  if(getAudioCtx()) {}
+  currentLevelKey = level;
+  currentQuestions = prepareQuestions(level);
+  currentQuestionIndex = 0;
+  score = 0;
+  wrongAnswers = [];
+  elapsedSeconds = 0;
+  isAnswering = false;
+
+  document.getElementById('score').innerText = '0';
+  document.getElementById('timer').innerText = '00:00';
+  document.getElementById('progress-fill').style.width = '0%';
+
+  const badge = document.getElementById('current-level-badge');
+  badge.innerText = quizData[level].title;
+  badge.style.backgroundColor = quizData[level].color;
+
+  startTimer();
+  showScreen('game-screen');
+  loadQuestion();
+}
+
+function startTimer(){
+  stopTimer();
+  gameStartTime = Date.now();
+  timerInterval = setInterval(()=>{
+    elapsedSeconds = Math.floor((Date.now() - gameStartTime)/1000);
+    document.getElementById('timer').innerText = formatTime(elapsedSeconds);
+  }, 500);
+}
+
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+}
+
+function loadQuestion(){
+  isAnswering = false;
+  const currentQ = currentQuestions[currentQuestionIndex];
+
+  document.getElementById('q-counter').innerText = `${currentQuestionIndex+1}/${currentQuestions.length}`;
+  document.getElementById('question-text').innerHTML = currentQ.q;
+
+  const pct = (currentQuestionIndex / currentQuestions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  const letters = ['أ','ب','ج','د'];
+
+  currentQ.options.forEach((opt, index)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="key-hint">${letters[index]}</span> <span>${opt.text}</span>`;
+    btn.onclick = () => checkAnswer(index, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function checkAnswer(selectedIndex, btnElement){
+  if(isAnswering) return;
+  isAnswering = true;
+
+  const currentQ = currentQuestions[currentQuestionIndex];
+  const allButtons = document.querySelectorAll('.option-btn');
+  allButtons.forEach(b => b.disabled = true);
+
+  const correctIndex = currentQ.options.findIndex(o => o.correct);
+
+  if(selectedIndex === correctIndex){
+    btnElement.classList.add('correct');
+    score++;
+    document.getElementById('score').innerText = score;
+    playSound(true);
+  } else {
+    btnElement.classList.add('wrong');
+    allButtons[correctIndex].classList.add('correct');
+    playSound(false);
+
+    const letters = ['أ','ب','ج','د'];
+    wrongAnswers.push({
+      q: currentQ.q,
+      letter: letters[selectedIndex],
+      userAnswer: currentQ.options[selectedIndex].text,
+      correctLetter: letters[correctIndex],
+      correctAnswer: currentQ.options[correctIndex].text
+    });
+  }
+
+  const pctAfter = ((currentQuestionIndex+1) / currentQuestions.length) * 100;
+  document.getElementById('progress-fill').style.width = pctAfter + '%';
+
+  setTimeout(()=>{
+    currentQuestionIndex++;
+    if(currentQuestionIndex < currentQuestions.length){
+      loadQuestion();
+    } else {
+      endGame();
+    }
+  }, 1100);
+}
+
+function endGame(){
+  stopTimer();
+  showScreen('result-screen');
+
+  const total = currentQuestions.length;
+  const pct = score / total;
+
+  document.getElementById('final-score').innerText = score;
+  document.getElementById('final-time').innerText = formatTime(elapsedSeconds);
+
+  const stars = document.getElementById('stars-row');
+  const recordBox = document.getElementById('record-container');
+  recordBox.innerHTML = '';
+
+  let starCount = (pct === 1) ? 3 : (pct >= 0.7) ? 2 : (pct >= 0.4) ? 1 : 0;
+  stars.innerText = '⭐'.repeat(starCount) + '☆'.repeat(3 - starCount);
+
+  document.getElementById('review-btn').style.display = wrongAnswers.length ? 'inline-block' : 'none';
+
+  // تحديث التخزين ليكون مخصص للوحدة الأولى فقط
+  const bestKey = 'bestScore_' + currentLevelKey + '_unit1';
+  const prevBest = parseInt(localStorage.getItem(bestKey) || '0', 10);
+  if(score > prevBest){
+    localStorage.setItem(bestKey, score);
+    const banner = document.createElement('div');
+    banner.className = 'record-banner';
+    banner.textContent = '🎉 رقم قياسي جديد! 🎉';
+    recordBox.appendChild(banner);
+  } else if(prevBest > 0){
+    const info = document.createElement('div');
+    info.style.color = '#475569';
+    info.style.fontWeight = '700';
+    info.textContent = '🏅 أفضل نتيجة سابقة: ' + prevBest + '/' + total;
+    recordBox.appendChild(info);
+  }
+}
+
+function showReview(){
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  wrongAnswers.forEach((w, i)=>{
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    item.innerHTML = `<div class="r-q">${i+1}) ${w.q}</div>
+      <div class="r-ans">❌ إجابتك <b>(${w.letter})</b>: <span class="r-wrong">${w.userAnswer}</span></div>
+      <div class="r-ans">✅ الإجابة الصحيحة <b>(${w.correctLetter})</b>: <span class="r-right">${w.correctAnswer}</span></div>`;
+    list.appendChild(item);
+  });
+  showScreen('review-screen');
+}
+
+function restartSameLevel(){
+  if(currentLevelKey) startGame(currentLevelKey);
+}
+
+renderBestRecords();
+</script>
+</body>
+</html>
